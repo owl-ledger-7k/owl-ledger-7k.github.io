@@ -343,6 +343,9 @@ body{transition:none}
 .side.ipo{background:color-mix(in srgb,var(--gold) 18%,transparent);color:var(--gold)}
 .trr .nm em{font-style:normal;font-size:11.5px;color:var(--sub);margin-left:6px;font-weight:600}
 #plbox{overflow-y:auto;-webkit-overflow-scrolling:touch}
+.yin{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:13px;color:var(--sub);font-weight:700}
+.yin input{width:120px;padding:8px 10px;border-radius:10px;border:1px solid var(--edge);background:var(--glass2);color:var(--ink);font:700 15px/1.2 inherit;text-align:right;font-variant-numeric:tabular-nums}
+.acrow{align-items:flex-start!important}
 </style>
 </head>
 <body>
@@ -366,7 +369,7 @@ body{transition:none}
   <button data-p="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='38';
+const VERSION='39';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -548,13 +551,13 @@ function fxReal(){const N=(D&&D.fx&&D.fx.now)||{};return N.mode&&!/練習/.test(
 function fxSum(){return trades().reduce((a,x)=>a+x.p,0)}
 // 証券口座ごと：入れた額（元金）と、フクリで増えた分（確定＋持っている株の含み）
 // 元金が設定タブで空欄の口座は、自動で数える（今＝口座のお金＋持っている株、元金＝今−増えた分）
-function acct(){const B=BK(),C=((D&&D.status)||{}).cash||{};return BROK.map(b=>{let inn=cfgNum('元金：'+b);const pl=+((B.pl||{})[b]||0);let auto=false;
+function acct(){const B=BK(),C=((D&&D.status)||{}).cash||{};return BROK.filter(acctOn).map(b=>{let inn=cfgNum('元金：'+b);const pl=+((B.pl||{})[b]||0);let auto=false;
   if(inn==null&&b!=='楽天'&&C[b]&&C[b].yen!=null){const now=(+C[b].yen||0)+(+((B.hv||{})[b]||0));inn=now-pl;auto=true}
   return{b,inn,pl,auto,now:inn==null?null:inn+pl}})}
 function gainLine(pl,inn){const pc=inn?(pl/inn*100):0;return `<span class="${pl>=0?'up':'dn'}">${pm(pl)}</span>${inn?`<span class="pc">（${pl>=0?'+':'−'}${Math.abs(pc).toFixed(1)}%）</span>`:''}`}
 function renderTodo(){
   const el=$('#p-todo');const rows=(D&&D.ipo)||[];
-  const it=todoItems(rows);const n=it.filter(x=>x.w).length;TODO=it;
+  const it=todoItems(rows);const n=it.filter(x=>x.w).length;TODO=it;appBadge(n);
   const A=acct(),set=A.filter(a=>a.inn!=null),inn=set.reduce((a,x)=>a+x.inn,0),pl=set.reduce((a,x)=>a+x.pl,0);
   el.innerHTML=`<div class="hd hrow"><div><div class="eyebrow">フクリ</div><h1>ホーム</h1></div>
      <button class="hbell" aria-label="今やること" onclick="showTodo()"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>${n?`<b class="badge">${n}</b>`:''}</button></div>
@@ -563,9 +566,9 @@ function renderTodo(){
      <div class="gain">${set.length?gainLine(pl,inn):''}</div>
      <div class="cap">${set.length?`入れたお金 ${yen(inn)}円 から`:'毎日12時と21時の確認のあとに出ます。'}</div></div>
    <div class="sec"><span>証券口座ごと</span><span>入れた額 → 今</span></div>
-   <div class="glass card cash">${A.map(a=>`<div class="it"><div><div style="font-weight:700">${a.b}</div><div style="font-size:12px;color:var(--sub)">${a.inn==null?(a.b==='楽天'?'設定タブで金額を入れてください':'次の確認のあとに出ます'):'入れた額 '+yen(a.inn)+'円'}</div></div>
+   <div class="glass card cash">${A.map(a=>`<div class="it"><div><div style="font-weight:700">${a.b}</div><div style="font-size:12px;color:var(--sub)">${a.inn==null?(a.b==='楽天'?'設定の証券口座で金額を入れてください':'次の確認のあとに出ます'):'入れた額 '+yen(a.inn)+'円'}</div></div>
      <div style="text-align:right"><b style="font-size:17px">${a.now==null?'—':yen(a.now)+'円'}</b><div style="font-size:12.5px;font-weight:700">${a.inn==null?'':gainLine(a.pl,a.inn)}</div></div></div>`).join('')}</div>
-   <div class="foot">フクリで使っている分だけの金額です。<br>入金すると自動で反映されます（楽天は設定タブの金額）。</div>`;
+   <div class="foot">フクリで使っている分だけの金額です。<br>入金額は、設定の「証券口座」で変えられます。</div>`;
 }
 let TODO=[];
 function showTodo(){
@@ -573,6 +576,34 @@ function showTodo(){
   sheet('今やること',it.length?`<div class="todo">${it.map(x=>`<div class="it ${x.w?'w':''}"><div><div class="tt">${esc(x.t)}</div><div class="ts">${brk(x.s)}</div></div>${x.b||''}</div>`).join('')}</div>`
     :'<div class="ts" style="padding:10px 0">今やることはありません。<br>全部自動で進んでいます。</div>');
 }
+
+// ---------- 設定：証券口座（取り扱うか・入金額。スプレッドシートの設定タブに書く） ----------
+let AOPEN=false;
+const ACCT_HINT={SBI:'空欄なら、口座のお金から自動で計算します。',楽天:'NISAの分は入れず、フクリで使う金額だけ入れてください。',DMM:'空欄なら、口座のお金から自動で計算します。'};
+function acctOn(b){return String(((D&&D.cfg)||{})['取扱：'+b]??'').trim()!=='しない'}
+function acctYen(b){const v=((D&&D.cfg)||{})['元金：'+b];return v==null||String(v).trim()===''?'':String(Math.round(+String(v).replace(/[^\d.-]/g,'')||0))}
+function acctCard(){
+  const on=BROK.filter(acctOn);
+  return `<div class="card glass set"><button class="acc ${AOPEN?'on':''}" onclick="AOPEN=!AOPEN;this.classList.toggle('on');this.nextElementSibling.classList.toggle('on')"><span class="t">証券口座</span><span class="s" id="acchd" style="margin:0">${on.join('・')||'なし'}</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button><div class="accb ${AOPEN?'on':''}"><div><div style="margin-top:12px;padding-top:4px;border-top:1px solid var(--line)">${BROK.map(b=>`<div class="row acrow" data-b="${b}">
+    <div style="flex:1;min-width:0"><div class="t">${b}</div><div class="s">${ACCT_HINT[b]}</div>
+     <label class="yin"><span>入金額</span><input type="text" inputmode="numeric" placeholder="${b==='楽天'?'金額を入力':'自動'}" value="${acctYen(b)?yen(+acctYen(b)):''}" onfocus="this.value=this.value.replace(/[^\\d]/g,'')" onchange="acctSave('${b}',{yen:this.value})"><span>円</span></label></div>
+    <div style="text-align:center"><button class="sw ${acctOn(b)?'on':''}" aria-label="${b}を取り扱う" onclick="acctSave('${b}',{on:!this.classList.contains('on')},this)"></button><div class="s" style="font-size:11px">${acctOn(b)?'取り扱う':'取り扱わない'}</div></div></div>`).join('')}</div></div></div></div>`;
+}
+async function acctSave(b,o,btn){
+  const body={kind:'acct',key:KEY,sess:SESS,b};
+  if('on' in o){if(!o.on&&!confirm(b+'を取り扱わないようにしますか？\n次の自動処理から、'+b+'の申込などを止めます。'))return;body.on=o.on;if(btn){btn.classList.toggle('on',o.on);btn.nextElementSibling.textContent=o.on?'取り扱う':'取り扱わない'}}
+  if('yen' in o){const t=String(o.yen).normalize('NFKC').replace(/[^\d]/g,'');body.yen=t===''?'':+t}
+  try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(body)}).then(r=>r.json());
+    if(!r.ok)throw 0;D.cfg=r.cfg||D.cfg;renderTodo();renderPL();syncAcct();toast('保存しました')}
+  catch(_){toast('保存できませんでした');syncAcct(true)}
+}
+// 画面を作り直さず、入力欄とスイッチだけを今の値に合わせる
+function syncAcct(force){document.querySelectorAll('.acrow').forEach(r=>{const b=r.dataset.b,i=r.querySelector('input'),s=r.querySelector('.sw');
+  if(i&&(force||document.activeElement!==i))i.value=acctYen(b)?yen(+acctYen(b)):'';
+  if(s){s.classList.toggle('on',acctOn(b));s.nextElementSibling.textContent=acctOn(b)?'取り扱う':'取り扱わない'}});
+  const h=$('#acchd');if(h)h.textContent=BROK.filter(acctOn).join('・')||'なし'}
+// ホーム画面のアイコンに、今やることの件数を赤い数字で出す
+function appBadge(n){try{if(!navigator.setAppBadge)return;(n?navigator.setAppBadge(n):navigator.clearAppBadge()).catch(()=>{})}catch(_){}}
 
 // ---------- 利益表（ハコペンの利益表と同じ形：月のカードを左右に振る＋下にその月の明細。押すと内訳） ----------
 let PLM={keys:[],L:[]},PLSEL='';
@@ -719,6 +750,7 @@ function renderSet(){
   el.innerHTML=`<div class="hd"><div class="eyebrow">フクリ</div><h1>設定</h1></div>
    <div class="card glass set" style="margin-top:4px"><button class="acc ${NOPEN?'on':''}" onclick="NOPEN=!NOPEN;this.classList.toggle('on');this.nextElementSibling.classList.toggle('on')"><span class="t">通知</span><span class="s" id="bellhd" style="margin:0">${BELL?'オン':'オフ'}</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button><div class="accb ${NOPEN?'on':''}"><div><div class="row" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--line)"><div><div class="t">アプリへの通知</div><div class="s" id="bellmsg">${BELL?'オンです。<br>下で届く知らせを選べます。':'オフです。<br>ホーム画面に追加したフクリでオンにしてください。'}</div></div><button class="sw ${BELL?'on':''}" id="swbell" aria-label="通知のオンオフ" onclick="BELL?bellOff():bellOn()"></button></div>
     ${NCATS.map(([k,t,d])=>{const on=NPREF[k]!==false;return `<div class="row nrow" style="${BELL?'':'opacity:.4'}"><div><div class="t">${t}</div><div class="s">${d}</div></div><button class="sw ${on?'on':''}" aria-label="${t}" data-k="${k}" onclick="setPref('${k}',!(NPREF['${k}']!==false))" ${BELL?'':'disabled'}></button></div>`}).join('')}</div></div></div>
+   <div style="margin-top:12px"></div>${acctCard()}
    <div class="sec">アカウント</div>
    <div class="card glass set"><div class="row"><div>${g}</div></div>
     <div style="margin-top:14px">${SESS?'<button class="btn sub" onclick="gLogout()">ログアウト</button>':`<button class="btn g" onclick="gLogin()">${GICON}Googleでログイン</button>`}</div></div>
@@ -732,7 +764,7 @@ function syncSet(){const el=$('#p-set');if(!el||!el.innerHTML){renderSet();retur
   const sb=$('#swbell');if(sb)sb.classList.toggle('on',BELL);
   const m=$('#bellmsg');if(m)m.innerHTML=BELL?'オンです。<br>下で届く知らせを選べます。':'オフです。<br>ホーム画面に追加したフクリでオンにしてください。';
   const h=$('#bellhd');if(h)h.textContent=BELL?'オン':'オフ';
-  el.querySelectorAll('.nrow').forEach(r=>{r.style.opacity=BELL?'':'.4';const b=r.querySelector('.sw');if(b){b.disabled=!BELL;b.classList.toggle('on',NPREF[b.dataset.k]!==false)}});}
+  syncAcct();el.querySelectorAll('.nrow').forEach(r=>{r.style.opacity=BELL?'':'.4';const b=r.querySelector('.sw');if(b){b.disabled=!BELL;b.classList.toggle('on',NPREF[b.dataset.k]!==false)}});}
 let SETDONE='';
 function render(){renderTodo();renderIPO();renderFX();renderPL();const k=(SESS?1:0)+'|'+GON;if(SETDONE!==k){SETDONE=k;renderSet()}else syncSet()}
 function go(p){TAB=p;store.set('fk_tab',p);document.body.dataset.tab=p;
