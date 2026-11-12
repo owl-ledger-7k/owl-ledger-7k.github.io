@@ -357,6 +357,64 @@ body{transition:none}
 #setv.in{animation:sin .32s cubic-bezier(.2,.8,.2,1)}#setv.out{animation:sout .32s cubic-bezier(.2,.8,.2,1)}
 @keyframes sin{from{transform:translateX(40%);opacity:0}to{transform:none;opacity:1}}
 @keyframes sout{from{transform:translateX(-30%);opacity:0}to{transform:none;opacity:1}}
+/* 利益表・FX（2026/11/13）：ハコペンの利益表と同じ形・色はフクリのまま */
+body{--sun:#FF7A72;--sat:#8FB2EE;--upbg:rgba(95,211,154,.14);--dnbg:rgba(229,72,77,.16)}
+.money{display:flex;flex-direction:column;padding:0 14px;overflow:hidden}
+.mtop{display:flex;align-items:center;gap:10px;margin:2px 0 2px;flex:none}
+.mseg{flex:1;margin:0!important}
+.mseg button{height:32px;padding:0;font-size:13px}
+.calhead{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;min-height:54px;flex:none}
+.mnav{display:flex;align-items:center}
+.mnav .nb{width:36px;height:36px;padding:0;border:0;border-radius:50%;background:none;color:var(--ink);display:grid;place-items:center}
+.mnav .nb:active{background:var(--glass2)}
+.mlabel{display:flex;flex-direction:column;align-items:center;min-width:64px;line-height:1.15}
+.mlabel small{font-size:11px;color:var(--sub)}.mlabel b{font-size:19px;font-variant-numeric:tabular-nums}
+.todaybtn{height:28px;padding:0 10px;font:500 12px/1 inherit;background:var(--glass2);color:var(--ink);border:0;border-radius:8px}
+.msum{justify-self:end;display:flex;flex-direction:column;align-items:flex-end;line-height:1.25;font-variant-numeric:tabular-nums;min-width:0}
+.msum b{font-size:17px;white-space:nowrap}.msum span{font-size:10.5px;color:var(--sub);white-space:nowrap}
+.mstrip{display:flex;justify-content:space-between;gap:6px;font-size:11px;color:var(--sub);padding:0 2px 6px;font-variant-numeric:tabular-nums;flex:none}
+.mstrip b{color:var(--ink);margin-left:4px}.mstrip b.up{color:var(--up)}.mstrip b.dn{color:var(--dn)}
+.mstrip em{font-style:normal;font-size:10px;font-weight:600;padding:1px 7px;border-radius:999px;margin-left:5px;background:var(--glass2);color:var(--sub)}
+.mstrip em.real{background:color-mix(in srgb,var(--gold) 18%,transparent);color:var(--gold)}
+.wdrow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));font-size:11px;color:var(--sub);text-align:center;padding:6px 0 4px;border-bottom:1px solid var(--line);flex:none}
+.wdrow .sun{color:var(--sun)}.wdrow .sat{color:var(--sat)}
+.calbody{flex:1;min-height:0;overflow:hidden}
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));grid-template-rows:repeat(6,minmax(0,1fr));height:100%}
+.cal .cell{min-height:0;min-width:0;border:0;border-bottom:1px solid var(--line);border-radius:0;background:none;padding:4px 1px 2px;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--ink);font:inherit}
+.cal .cell:active{background:var(--glass2)}
+.cal .cell .num{font-size:13px;width:24px;height:24px;line-height:24px;border-radius:12px;font-variant-numeric:tabular-nums;flex:none}
+.cal .cell.out .num{opacity:.3}
+.cal .cell.today .num{background:var(--gold);color:#0b0d0c;font-weight:600}
+.cal .cell .amt{font-size:9.5px;font-weight:600;letter-spacing:-.04em;font-variant-numeric:tabular-nums;white-space:nowrap;padding:1px 3px;border-radius:4px;max-width:100%;overflow:hidden}
+.cal .cell.pos .amt{color:var(--up);background:var(--upbg)}.cal .cell.neg .amt{color:var(--dn);background:var(--dnbg)}
+.cal .cell.zero .amt,.cal .cell.prac .amt{color:var(--sub);background:var(--glass2)}
+.cal .cell.est .amt{background:none;outline:1px dashed currentColor;outline-offset:-1px}
+.cal.jumped .cell.today .num{animation:tpop .7s .12s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes tpop{0%{transform:scale(.4);box-shadow:0 0 0 0 var(--gold)}55%{transform:scale(1.25);box-shadow:0 0 0 8px rgba(167,139,250,0)}100%{transform:none}}
+@keyframes mslideR{from{transform:translateX(100%)}}@keyframes mslideL{from{transform:translateX(-100%)}}
+.cal.a-next{animation:mslideR .18s cubic-bezier(.2,.8,.2,1)}.cal.a-prev{animation:mslideL .18s cubic-bezier(.2,.8,.2,1)}
+.dtot{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums;margin:2px 0 6px}
+.anap,.anat{display:flex;gap:6px;flex:none;align-items:center}
+.anap{margin:0 0 8px}.anat{overflow-x:auto;scrollbar-width:none;margin-bottom:8px}.anat::-webkit-scrollbar{display:none}
+.anap button,.anat button{height:30px;padding:0 13px;font:500 12px/1 inherit;background:var(--glass2);color:var(--ink);border:0;border-radius:999px;white-space:nowrap}
+.anap button.on,.anat button.on{background:var(--gold);color:#0b0d0c;font-weight:600}
+.anap .grow{flex:1}.ptn{font-size:11px;color:var(--sub)}.ptn b{color:var(--ink)}
+.astat{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:8px;flex:none}
+.astat div{background:var(--glass);border:1px solid var(--edge);border-radius:12px;padding:7px 10px;min-width:0}
+.astat span{display:block;font-size:10.5px;color:var(--sub)}.astat b{font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.achart{background:var(--glass);border:1px solid var(--edge);border-radius:14px;padding:10px 12px 6px;flex:none}
+.axl{display:flex;justify-content:space-between;font-size:10px;color:var(--sub);margin-top:4px}
+.arank{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:var(--glass);border:1px solid var(--edge);border-radius:14px;padding:8px 14px 4px;margin-top:8px}
+.arh{font-size:12px;font-weight:600;color:var(--sub);margin-bottom:2px}
+.arank .trr .cn{flex:none;font-size:11px;color:var(--sub)}
+.page.on>.money{animation:none}
+.swp{position:relative;overflow:hidden}
+.swbg{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;padding-right:16px;background:#3a3a3e;color:#fff;font-size:12.5px;font-weight:600;border-radius:10px}
+.swp{animation:rise .45s cubic-bezier(.2,.8,.2,1) both}
+.todo .swp .it{animation:none;position:relative;background:var(--glass);touch-action:pan-y}
+.swp+.swp .it{border-top:1px solid var(--line)}.todo .swp:first-child .it{border-top:0}
+.swhint{font-size:11px;color:var(--mute);margin-top:8px}
+.hidlink{display:block;width:100%;margin-top:14px;padding:10px 0;border:0;background:none;color:var(--mute);font:500 13px/1 inherit;text-align:center}
 </style>
 </head>
 <body>
@@ -380,7 +438,7 @@ body{transition:none}
   <button data-p="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='40';
+const VERSION='41';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -568,7 +626,7 @@ function acct(){const B=BK(),C=((D&&D.status)||{}).cash||{};return ALLB.filter(a
 function gainLine(pl,inn){const pc=inn?(pl/inn*100):0;return `<span class="${pl>=0?'up':'dn'}">${pm(pl)}</span>${inn?`<span class="pc">（${pl>=0?'+':'−'}${Math.abs(pc).toFixed(1)}%）</span>`:''}`}
 function renderTodo(){
   const el=$('#p-todo');const rows=(D&&D.ipo)||[];
-  const it=todoItems(rows);const n=it.filter(x=>x.w).length;TODO=it;appBadge(n);
+  const all=todoItems(rows);TODO=all;const it=all.filter(x=>!HID.includes(x.t));const n=it.filter(x=>x.w).length;appBadge(n);
   const A=acct(),set=A.filter(a=>a.inn!=null),inn=set.reduce((a,x)=>a+x.inn,0),pl=set.reduce((a,x)=>a+x.pl,0);
   el.innerHTML=`<div class="hd hrow"><div><div class="eyebrow">フクリ</div><h1>ホーム</h1></div>
      <button class="hbell" aria-label="今やること" onclick="showTodo()"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>${n?`<b class="badge">${n}</b>`:''}</button></div>
@@ -582,11 +640,32 @@ function renderTodo(){
    <div class="foot">フクリで使っている分だけの金額です。<br>入金額は、設定の「証券口座」で変えられます。</div>`;
 }
 let TODO=[];
+// 今やること：左にスワイプで非表示（この端末に覚える）。下の「非表示にした通知」から見られて、元に戻せる（2026/11/13）
+let HID=[];try{HID=JSON.parse(store.get('fk_hid')||'[]')}catch(_){}
+function saveHid(){store.set('fk_hid',JSON.stringify(HID));renderTodo()}
 function showTodo(){
-  const it=TODO;
-  sheet('今やること',it.length?`<div class="todo">${it.map(x=>`<div class="it ${x.w?'w':''}"><div><div class="tt">${esc(x.t)}</div><div class="ts">${brk(x.s)}</div></div>${x.b||''}</div>`).join('')}</div>`
-    :'<div class="ts" style="padding:10px 0">今やることはありません。<br>全部自動で進んでいます。</div>');
+  const it=TODO.filter(x=>!HID.includes(x.t)),hn=TODO.filter(x=>HID.includes(x.t)).length;
+  sheet('今やること',(it.length?`<div class="todo" id="todol">${it.map(x=>`<div class="swp"><div class="swbg">非表示</div><div class="it ${x.w?'w':''}" data-t="${esc(x.t)}"><div><div class="tt">${esc(x.t)}</div><div class="ts">${brk(x.s)}</div></div>${x.b||''}</div></div>`).join('')}</div>
+    <div class="swhint">左にスワイプすると非表示にできます。</div>`
+    :'<div class="ts" style="padding:10px 0">今やることはありません。<br>全部自動で進んでいます。</div>')
+    +(hn?`<button class="hidlink" onclick="showHid()">非表示にした通知（${hn}件）</button>`:''));
+  todoSwipe();
 }
+function showHid(){
+  const it=TODO.filter(x=>HID.includes(x.t));
+  sheet('非表示にした通知',it.length?`<div class="todo">${it.map(x=>`<div class="it"><div><div class="tt" style="color:var(--sub)">${esc(x.t)}</div><div class="ts">${brk(x.s)}</div></div><button class="btn s sub" data-t="${esc(x.t)}" onclick="unhide(this.dataset.t)">戻す</button></div>`).join('')}</div>
+    <button class="hidlink" onclick="showTodo()">今やることに戻る</button>`
+    :'<div class="ts" style="padding:10px 0">非表示にした通知はありません。</div><button class="hidlink" onclick="showTodo()">今やることに戻る</button>');
+}
+function unhide(t){HID=HID.filter(x=>x!==t);saveHid();toast('元に戻しました');TODO.some(x=>HID.includes(x.t))?showHid():showTodo()}
+function todoSwipe(){document.querySelectorAll('#todol .it').forEach(el=>{let x0=null,y0=0,dx=0,on=false;
+  el.addEventListener('touchstart',e=>{x0=e.touches[0].clientX;y0=e.touches[0].clientY;dx=0;on=false;el.style.transition='none'},{passive:true});
+  el.addEventListener('touchmove',e=>{if(x0==null)return;const mx=e.touches[0].clientX-x0,my=e.touches[0].clientY-y0;
+    if(!on&&Math.abs(mx)>10&&Math.abs(mx)>Math.abs(my)*1.5)on=true;if(!on)return;if(e.cancelable)e.preventDefault();dx=Math.min(0,mx);el.style.transform=`translateX(${dx}px)`},{passive:false});
+  el.addEventListener('touchend',()=>{if(x0==null)return;x0=null;el.style.transition='transform .25s cubic-bezier(.2,.8,.2,1)';
+    if(dx<-90){el.style.transform='translateX(-110%)';const w=el.parentNode;w.style.transition='height .25s .15s,opacity .25s .15s';w.style.height=w.offsetHeight+'px';
+      requestAnimationFrame(()=>{w.style.height='0';w.style.opacity='0'});setTimeout(()=>{HID.push(el.dataset.t);saveHid();showTodo();toast('非表示にしました')},420)}
+    else el.style.transform=''})})}
 
 // ---------- 設定：証券口座（取り扱うか・入金額。スプレッドシートの設定タブに書く） ----------
 // 自動の申込に対応しているのはSBI・楽天・DMM。ほかは「口座あり」にすると入金額が合計に入り、対応を足すときの目印になる
@@ -623,48 +702,138 @@ function syncAcct(force){document.querySelectorAll('.acrow').forEach(r=>{const b
 // ホーム画面のアイコンに、今やることの件数を赤い数字で出す
 function appBadge(n){try{if(!navigator.setAppBadge)return;(n?navigator.setAppBadge(n):navigator.clearAppBadge()).catch(()=>{})}catch(_){}}
 
-// ---------- 利益表（ハコペンの利益表と同じ形：月のカードを左右に振る＋下にその月の明細。押すと内訳） ----------
-let PLM={keys:[],L:[]},PLSEL='';
+// ---------- 利益表・FX（2026/11/13：ハコペンの利益表と同じ形＝カレンダー＋収支表。色はフクリの紫のまま） ----------
+// カレンダー＝日ごとの損益をマスに出し、押すと下からその日の明細。左右スワイプ・矢印で月を移動。
+// 収支表＝期間（月・年・全期間）と種類で絞り込み、件数・利益が出た件数・平均・最高・最低・累計、グラフ、銘柄（型）ごとの順位。
+const CV={pl:{mode:'cal',mon:null,p:'month',tag:'all'},fx:{mode:'cal',mon:null,p:'month',tag:'all'}};
+const ARW=d=>`<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="${d}"/></svg>`;
+const pmY=v=>(v>0?'+':v<0?'−':'')+'¥'+Math.abs(Math.round(v)).toLocaleString();
+const cmp=v=>(v>0?'+':v<0?'−':'')+Math.abs(Math.round(v)).toLocaleString();
+const sumV=a=>a.reduce((s,x)=>s+(x.cnt?x.v:0),0);
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+let PLM={L:[]};
 function plRows(){
   const B=BK(),fr=fxReal(),L=[];
   (B.hist||[]).forEach(h=>L.push({d:String(h.d||''),k:h.k||'IPO',n:h.n||'',b:h.b||'',e:h.e||'',y:h.y,est:!!h.est,cnt:true}));
   trades().forEach(x=>L.push({d:x.d+' '+tm(x.ot),k:'FX',n:x.t,b:fr?'':'練習',e:x.side,y:x.p,cnt:fr,fx:x}));
   return L.sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:0);
 }
-function renderPL(){
-  const el=$('#p-pl');if(!el)return;const L=plRows();PLM.L=L;
-  const byM={},nM={};L.forEach(x=>{const m=x.d.slice(0,7);if(!/^\d{4}-\d\d$/.test(m))return;nM[m]=(nM[m]||0)+1;if(x.cnt&&x.y!=null)byM[m]=(byM[m]||0)+x.y});
-  const nd=new Date(),key=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),nowM=key(nd);
-  const ks=Object.keys(nM).sort(),first=ks[0]&&ks[0]<nowM?ks[0]:nowM,months=[];
-  for(let d=new Date(+first.slice(0,4),+first.slice(5)-1,1);key(d)<=nowM;d.setMonth(d.getMonth()+1))months.push(key(d));
-  let cum=0;const cums={};months.forEach(m=>{cum+=byM[m]||0;cums[m]=cum});
-  PLM.keys=months;if(!months.includes(PLSEL))PLSEL=nowM;
-  const A=acct(),set=A.filter(a=>a.inn!=null),inn=set.reduce((a,x)=>a+x.inn,0),pt=(BK().pt||{}).sbi;
-  el.innerHTML=`<div class="hd"><div class="eyebrow">IPO・分売・FX</div><h1>利益表</h1>
-     <div class="cap">${set.length?`${yen(inn)}円 → <b style="color:var(--ink)">${yen(inn+cum)}円</b>（${pm(cum)}）`:'毎日12時と21時の確認のあとに金額が出ます。'}${pt==null?'':`<br>SBIのチャレンジポイント ${yen(pt)}pt`}</div></div>
-   <div class="mcar" id="plcar">${months.map(m=>{const v=byM[m]||0,n=L.filter(x=>x.d.startsWith(m)),c=n.filter(x=>x.cnt&&x.y!=null);
-     return `<div class="mc glass"><div class="ml">${+m.slice(0,4)}年${+m.slice(5)}月${m===nowM?'<span class="tag n">今月</span>':''}</div>
-      <div class="mv ${v>=0?'up':'dn'}">${pm(v)}</div><div class="ms">${n.length?`${n.length}件の取引（利益が出たもの ${c.filter(x=>x.y>0).length}件）`:'取引なし'}</div>
-      <div class="mk">累計 <b class="${cums[m]>=0?'up':'dn'}">${pm(cums[m])}</b></div></div>`}).join('')}</div>
-   <div class="mdots">← 左右に振ると、ほかの月が見られます →</div>
-   <div class="card glass" id="pllst"></div>`;
-  plList();
-  const c=$('#plcar');if(c){requestAnimationFrame(plScroll);
-    let rq=0;c.onscroll=()=>{if(rq)return;rq=requestAnimationFrame(()=>{rq=0;const w=c.children[0].offsetWidth+12;const i=Math.round(c.scrollLeft/w);
-      const m=months[Math.max(0,Math.min(months.length-1,i))];if(m!==PLSEL){PLSEL=m;plList()}})}}
+// 1件ずつ {day:'2026-11-13', v:円, cnt:合計に入れるか, name, tag:種類, i:明細の番号, est:目安か}
+function calRows(w){
+  if(w==='pl'){const L=plRows();PLM.L=L;
+    return L.map((x,i)=>({day:x.d.slice(0,10),v:x.y==null?0:+x.y,cnt:x.cnt&&x.y!=null,name:x.n||x.k,tag:x.k,i,est:x.est,x})).filter(r=>/^\d{4}-\d\d-\d\d$/.test(r.day))}
+  return trades().map((x,i)=>({day:x.d,v:x.p,cnt:true,name:x.t,tag:x.t,i,fx:x}));
 }
-function plScroll(){fitPl();const c=$('#plcar');if(!c||!c.children.length||!c.offsetWidth)return;
-  const i=Math.max(0,PLM.keys.indexOf(PLSEL));c.scrollLeft=c.children[i].offsetLeft-c.children[0].offsetLeft}
-function plTag(x){return x.k==='FX'?`<span class="side ${x.e==='買い'?'buy':'sell'}">${x.e==='買い'?'買':'売'}</span>`:`<span class="side ${x.k==='分売'?'buy':'ipo'}">${esc(x.k)}</span>`}
-function plList(){
-  const el=$('#pllst');if(!el)return;const L=PLM.L.filter(x=>x.d.startsWith(PLSEL));
-  const nx=L.filter(x=>x.k!=='FX').length,nf=L.length-nx;
-  el.innerHTML=`<div class="row" style="margin-bottom:6px"><b style="font-size:15px">${+PLSEL.slice(5)}月の明細</b><span style="font-size:12.5px;color:var(--sub)">IPO・分売 ${nx}件・FX ${nf}件</span></div>
-   <div class="trl trbox" id="plbox">${L.length?L.map(x=>{const i=PLM.L.indexOf(x),m=x.d.match(/\d{4}-(\d\d)-(\d\d)/);
-     return `<div class="trr" onclick="plSheet(${i})"><span class="dt">${m?(+m[1])+'/'+(+m[2]):''}</span><span class="nm">${plTag(x)}${esc(x.n)}<em>${esc(x.k==='FX'?x.b:[x.b,x.e].filter(Boolean).join(' '))}</em></span><span class="pp ${x.y==null?'':x.y>=0?'up':'dn'}">${x.y==null?'—':(x.est?'<small>約</small>':'')+pm(x.y)}</span></div>`}).join('')
-     :'<div style="padding:6px 0;color:var(--sub);font-size:13px">この月の取引はありません。</div>'}</div>`;
-  fitPl();
+function pageMoney(w){
+  const S=CV[w],n=new Date();if(!S.mon)S.mon=new Date(n.getFullYear(),n.getMonth(),1);
+  const el=$('#p-'+w);if(!el)return;
+  el.innerHTML=`<div class="money" id="mo-${w}">${moneyInner(w,'')}</div>`;moneyAfter(w);fitMoney();
 }
+function renderPL(){pageMoney('pl')}
+function renderFX(){pageMoney('fx')}
+function moneyInner(w,anim){const S=CV[w];
+  return `<div class="mtop"><div class="seg mseg"><button class="${S.mode==='cal'?'on':''}" onclick="setMoney('${w}','cal')">カレンダー</button><button class="${S.mode==='ana'?'on':''}" onclick="setMoney('${w}','ana')">収支表</button></div></div>`
+    +(S.mode==='cal'?calHtml(w,anim):anaHtml(w,anim));
+}
+function redrawMoney(w,anim){const m=$('#mo-'+w);if(!m)return;m.innerHTML=moneyInner(w,anim);fitMoney()}
+function setMoney(w,k){if(CV[w].mode===k)return;CV[w].mode=k;redrawMoney(w)}
+function calGo(w,n){const S=CV[w],now=new Date(),cur=new Date(now.getFullYear(),now.getMonth(),1),old=S.mon;
+  if(S.mode==='ana'&&S.p==='all')return;
+  const step=S.mode==='ana'&&S.p==='year'?12:1;
+  S.mon=n===0?cur:new Date(S.mon.getFullYear(),S.mon.getMonth()+n*step,1);
+  redrawMoney(w,S.mon>old?'next':S.mon<old?'prev':n===0?'jump':'');
+}
+function monHead(w,big,sub){const S=CV[w],now=new Date(),isCur=S.mon.getFullYear()===now.getFullYear()&&S.mon.getMonth()===now.getMonth();
+  const y=S.mon.getFullYear(),mo=S.mon.getMonth()+1,ana=S.mode==='ana',nav=!(ana&&S.p==='all');
+  const lab=ana&&S.p==='year'?`<small>年間</small><b>${y}年</b>`:ana&&S.p==='all'?`<small>これまで</small><b>全期間</b>`:`<small>${y}年</small><b>${mo}月</b>`;
+  return `<div class="calhead"><div>${isCur||!nav?'':`<button class="todaybtn" onclick="calGo('${w}',0)">今月</button>`}</div>
+    <div class="mnav">${nav?`<button class="nb" onclick="calGo('${w}',-1)" aria-label="前へ">${ARW('M15 5l-7 7 7 7')}</button>`:''}<div class="mlabel">${lab}</div>${nav?`<button class="nb" onclick="calGo('${w}',1)" aria-label="次へ">${ARW('M9 5l7 7-7 7')}</button>`:''}</div>
+    <div class="msum"><b class="${big<0?'dn':'up'}">${pmY(big)}</b><span>${sub}</span></div></div>`;
+}
+function calHtml(w,anim){
+  const S=CV[w],y=S.mon.getFullYear(),mo=S.mon.getMonth(),pre=`${y}-${String(mo+1).padStart(2,'0')}`;
+  const rows=calRows(w),by={};rows.forEach(x=>(by[x.day]=by[x.day]||[]).push(x));
+  const mine=rows.filter(x=>x.day.startsWith(pre)),cum=sumV(rows.filter(x=>x.day.slice(0,7)<=pre));
+  const first=new Date(y,mo,1).getDay(),today=ymd(new Date());
+  let cells='';
+  for(let i=0;i<42;i++){
+    const dt=new Date(y,mo,1-first+i),ds=ymd(dt),wd=i%7,out=dt.getMonth()!==mo;
+    const L=out?[]:(by[ds]||[]),C=L.filter(x=>x.cnt),v=sumV(L);
+    const cls=['cell',out?'out':'',ds===today?'today':'',C.length?(v>0?'pos':v<0?'neg':'zero'):L.length?'prac':'',L.some(x=>x.est)?'est':''].join(' ');
+    const col=!out&&ds!==today&&wd===0?' style="color:var(--sun)"':!out&&ds!==today&&wd===6?' style="color:var(--sat)"':'';
+    cells+=`<button class="${cls}" ${out?'tabindex="-1"':`onclick="calDay('${w}','${ds}')"`}><span class="num"${col}>${dt.getDate()}</span>`
+      +(C.length?`<span class="amt">${cmp(v)}</span>`:L.length?`<span class="amt">${L.length}件</span>`:'')+`</button>`;
+  }
+  let strip;
+  if(w==='pl'){const A=acct(),set=A.filter(a=>a.inn!=null),inn=set.reduce((a,x)=>a+x.inn,0),cumAll=sumV(rows);
+    const nx=mine.filter(x=>x.tag!=='FX').length,nf=mine.length-nx;
+    strip=`<span>IPO・分売<b>${nx}件</b></span><span>FX<b>${nf}件</b>${fxReal()?'':'<em>練習</em>'}</span>`+(set.length?`<span>今<b>${yen(inn+cumAll)}円</b></span>`:'');
+  }else{const wn=mine.filter(x=>x.v>0).length,N=(D&&D.fx&&D.fx.now)||{};
+    strip=`<span>取引<b>${mine.length}回</b></span><span>勝ち<b class="up">${wn}</b>・負け<b class="dn">${mine.length-wn}</b></span><span><em class="${fxReal()?'real':''}">${esc(N.mode||'練習')}</em></span>`;}
+  return monHead(w,sumV(mine),`累計 ${pmY(cum)}`)
+    +`<div class="mstrip">${strip}</div>
+    <div class="wdrow">${W.split('').map((d,i)=>`<span class="${i===0?'sun':i===6?'sat':''}">${d}</span>`).join('')}</div>
+    <div class="calbody"><div class="cal ${anim&&anim!=='jump'?'a-'+anim:''} ${anim?'jumped':''}">${cells}</div></div>`;
+}
+function calDay(w,ds){
+  const L=calRows(w).filter(x=>x.day===ds),[,m,d]=ds.split('-').map(Number),tot=sumV(L),C=L.filter(x=>x.cnt);
+  const row=x=>{const f=w==='fx'?x.fx:x.x.fx;const t=f?`<span class="side ${f.side==='買い'?'buy':'sell'}">${f.side==='買い'?'買':'売'}</span>`:`<span class="side ${x.tag==='分売'?'buy':'ipo'}">${esc(x.tag)}</span>`;
+    const sub=w==='fx'?esc(tm(f.ot)):esc(x.x.k==='FX'?x.x.b:[x.x.b,x.x.e].filter(Boolean).join(' '));
+    return `<div class="trr" onclick="${w==='fx'?`fxSheet(${x.i})`:`plSheet(${x.i})`}"><span class="nm">${t}${esc(x.name)}<em>${sub}</em></span><span class="pp ${!x.cnt?'':x.v>=0?'up':'dn'}">${x.x&&x.x.y==null?'—':(x.est?'<small>約</small>':'')+pmY(x.v)}</span></div>`};
+  sheet(`${m}月${d}日`,(C.length?`<div class="dtot ${tot<0?'dn':'up'}">${pmY(tot)}</div>`:'')
+    +(L.length?L.map(row).join(''):'<div class="ts" style="padding:8px 0;color:var(--sub)">この日の取引はありません。</div>')
+    +(w==='pl'&&L.some(x=>!x.cnt&&x.tag==='FX')?'<div class="ts" style="padding-top:10px;font-size:12px;color:var(--sub)">FXは練習なので、合計には入れていません。</div>':''));
+}
+function anaHtml(w,anim){
+  const S=CV[w],rows=calRows(w).filter(x=>x.cnt),y=S.mon.getFullYear(),mo=S.mon.getMonth(),pre=`${y}-${String(mo+1).padStart(2,'0')}`;
+  const inP=x=>S.p==='month'?x.day.startsWith(pre):S.p==='year'?x.day.startsWith(y+'-'):true;
+  const tags=[...new Set(rows.map(x=>x.tag))];if(S.tag!=='all'&&!tags.includes(S.tag))S.tag='all';
+  const F=rows.filter(inP).filter(x=>S.tag==='all'||x.tag===S.tag),tot=sumV(F),sv=F.map(x=>x.v),win=F.filter(x=>x.v>0).length;
+  let vals=[],labs=[],line=false;
+  if(S.p==='month'){const dn=new Date(y,mo+1,0).getDate();let s=0;line=true;
+    for(let d=1;d<=dn;d++){const ds=`${pre}-${String(d).padStart(2,'0')}`;s+=sumV(F.filter(x=>x.day===ds));vals.push(s);labs.push(`${mo+1}/${d}`)}
+  }else{let keys=[];
+    if(S.p==='year')keys=Array.from({length:12},(_,i)=>`${y}-${String(i+1).padStart(2,'0')}`);
+    else{const ks=[...new Set(F.map(x=>x.day.slice(0,7)))].sort();if(ks.length){let [a,b]=ks[0].split('-').map(Number);const [ea,eb]=ks[ks.length-1].split('-').map(Number);
+      while(a<ea||(a===ea&&b<=eb)){keys.push(`${a}-${String(b).padStart(2,'0')}`);b++;if(b>12){b=1;a++}}}}
+    vals=keys.map(k=>sumV(F.filter(x=>x.day.startsWith(k))));labs=keys.map(k=>S.p==='all'?`${k.slice(2,4)}年${+k.slice(5)}月`:`${+k.slice(5)}月`);
+  }
+  const rank={};F.forEach(x=>{const r=rank[x.name]=rank[x.name]||{n:0,v:0};r.n++;r.v+=x.v});
+  const R=Object.entries(rank).sort((a,b)=>b[1].v-a[1].v),u=w==='fx'?'回':'件';
+  const rr=([nm,r])=>`<div class="trr"><span class="nm">${esc(nm)}</span><span class="cn">${r.n}${u}</span><span class="pp ${r.v<0?'dn':'up'}">${pmY(r.v)}</span></div>`;
+  const chip=(on,js,t)=>`<button class="${on?'on':''}" onclick="${js}">${t}</button>`;
+  const pt=w==='pl'?(BK().pt||{}).sbi:null;
+  return monHead(w,tot,S.tag==='all'?(w==='fx'?'FXの損益':'IPO・分売・FXの利益'):`${esc(S.tag)}の${w==='fx'?'損益':'利益'}`)
+    +`<div class="anap">${chip(S.p==='month',`anaSet('${w}','p','month')`,'月')}${chip(S.p==='year',`anaSet('${w}','p','year')`,'年')}${chip(S.p==='all',`anaSet('${w}','p','all')`,'全期間')}
+      <span class="grow"></span>${pt!=null?`<span class="ptn">SBIポイント <b>${yen(pt)}pt</b></span>`:''}</div>
+    ${tags.length>1?`<div class="anat">${chip(S.tag==='all',`anaSet('${w}','t','all')`,'すべて')}${tags.map(t=>chip(S.tag===t,`anaSet('${w}','t',${esc(JSON.stringify(t))})`,esc(t))).join('')}</div>`:''}
+    <div class="astat"><div><span>${w==='fx'?'取引':'件数'}</span><b>${F.length}${u}</b></div><div><span>${w==='fx'?'勝ち':'利益が出た'}</span><b>${win}/${F.length}${u}</b></div><div><span>1${u}の平均</span><b>${pmY(F.length?tot/F.length:0)}</b></div>
+      <div><span>最高</span><b class="up">${sv.length?pmY(Math.max(...sv)):'−'}</b></div><div><span>最低</span><b class="${sv.length&&Math.min(...sv)<0?'dn':'up'}">${sv.length?pmY(Math.min(...sv)):'−'}</b></div><div><span>累計</span><b class="${sumV(rows)<0?'dn':'up'}">${pmY(sumV(rows))}</b></div></div>
+    <div class="achart">${vals.length&&F.length?chartSvg(vals,labs,line):'<div style="padding:30px 0;text-align:center;color:var(--sub);font-size:12.5px">記録がありません。</div>'}</div>
+    <div class="arank"><div class="arh">${w==='fx'?'型ごとの損益':'銘柄ごとの利益'}</div>${R.length?R.map(rr).join('')
+      :`<div style="padding:8px 0;color:var(--sub);font-size:12.5px">この期間の${w==='fx'?'取引':'記録'}はありません。</div>`}</div>`;
+}
+function anaSet(w,k,v){const S=CV[w];if(k==='p')S.p=v;else S.tag=v;redrawMoney(w)}
+function chartSvg(vals,labs,line){
+  const Wd=320,H=92,P=4,n=vals.length,mx=Math.max(0,...vals),mn=Math.min(0,...vals),rg=(mx-mn)||1;
+  const y=v=>P+(mx-v)/rg*(H-2*P),z=y(0);let body='';
+  if(line){const x=i=>P+i*(Wd-2*P)/Math.max(1,n-1),pts=vals.map((v,i)=>`${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' '),col=vals[n-1]<0?'var(--dn)':'var(--up)';
+    body=`<polygon points="${x(0)},${z} ${pts} ${x(n-1)},${z}" fill="${col}" opacity=".14"/><polyline points="${pts}" fill="none" stroke="${col}" stroke-width="2" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;
+  }else{const bw=(Wd-2*P)/n;
+    body=vals.map((v,i)=>{const t=Math.min(y(v),z),h=Math.max(v?1.5:0,Math.abs(y(v)-z));
+      return `<rect x="${(P+i*bw+bw*.18).toFixed(1)}" y="${t.toFixed(1)}" width="${(bw*.64).toFixed(1)}" height="${h.toFixed(1)}" rx="1.5" fill="${v<0?'var(--dn)':'var(--up)'}"/>`}).join('');}
+  return `<svg viewBox="0 0 ${Wd} ${H}" preserveAspectRatio="none" style="width:100%;height:${H}px;display:block"><line x1="0" x2="${Wd}" y1="${z}" y2="${z}" stroke="var(--line)" vector-effect="non-scaling-stroke"/>${body}</svg>
+    <div class="axl">${[...new Set([0,Math.floor((n-1)/2),n-1])].map(i=>`<span>${labs[i]}</span>`).join('')}</div>`;
+}
+function moneyAfter(w){const b=$('#mo-'+w);if(!b)return;let x0=null,y0=0;
+  b.addEventListener('touchstart',e=>{if(e.target.closest('.anat,.arank')){x0=null;return}x0=e.touches[0].clientX;y0=e.touches[0].clientY},{passive:true});
+  b.addEventListener('touchend',e=>{if(x0==null)return;const dx=e.changedTouches[0].clientX-x0,dy=e.changedTouches[0].clientY-y0;x0=null;
+    if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*2)calGo(w,dx<0?1:-1)},{passive:true});
+}
+// 下のタブの上までの高さにする（画面全体はスクロールさせない）
+function fitMoney(){const n=$('#nav');if(!n)return;document.querySelectorAll('.money').forEach(b=>{if(!b.offsetParent)return;
+  b.style.height=Math.max(300,n.getBoundingClientRect().top-8-b.getBoundingClientRect().top)+'px'})}
+function fitPl(){fitMoney()}function fitTr(){fitMoney()}function plScroll(){fitMoney()}function fxScroll(){fitMoney()}
 // 明細1件の内訳（下から出るシート）
 function plSheet(i){const x=PLM.L[i];if(!x)return;
   const line=(a,b)=>`<div class="trr"><span class="nm" style="font-weight:600;color:var(--sub)">${a}</span><span class="pp">${b}</span></div>`;
@@ -674,9 +843,11 @@ function plSheet(i){const x=PLM.L[i];if(!x)return;
   h+=line(x.k==='FX'?'損益':x.est?'利益（目安）':'利益',x.y==null?'—':`<span class="${x.y>=0?'up':'dn'}">${pm(x.y)}</span>`);
   sheet(x.n||x.k,h+(x.est?'<div class="ts" style="padding-top:10px;font-size:12px;color:var(--sub)">株データの値段から出した目安です。<br>持っている株は今の値段で数えています。</div>':'')+(x.k==='FX'&&!x.cnt?'<div class="ts" style="padding-top:10px;font-size:12px;color:var(--sub)">FXは練習なので、合計には入れていません。</div>':''));
 }
-// 明細の欄を、下のタブの上までの高さにする（画面全体はスクロールさせない）
-function fitPl(){const b=$('#plbox'),n=$('#nav');if(!b||!n||!b.offsetParent)return;
-  const top=b.getBoundingClientRect().top,bottom=n.getBoundingClientRect().top-22;b.style.height=Math.max(80,bottom-top)+'px'}
+function fxSheet(i){const f=trades()[i];if(!f)return;
+  const line=(a,b)=>`<div class="trr"><span class="nm" style="font-weight:600;color:var(--sub)">${a}</span><span class="pp">${b}</span></div>`;
+  sheet(f.t,line('日時',esc(f.d.replace(/-/g,'/')+' '+tm(f.ot)))+line('売り買い',esc(f.side))+line('入った値段',fmtPx(f.ip))+line('決済の値段',fmtPx(f.op))+(f.why?line('決済の理由',esc(f.why)):'')
+    +line('損益',`<span class="${f.p>=0?'up':'dn'}">${pm(f.p)}</span>`));
+}
 
 // ---------- FX ----------
 function trades(){
@@ -684,41 +855,6 @@ function trades(){
     .filter(x=>x.d&&!isNaN(x.p)).sort((a,b)=>(a.d+a.ot)<(b.d+b.ot)?-1:1);
 }
 function tm(v){const s=String(v);const m=s.match(/T(\d\d:\d\d)/)||s.match(/^(\d{1,2}:\d\d)/);return m?m[1]:s}
-function renderFX(){
-  const el=$('#p-fx');const T=trades();const N=(D&&D.fx&&D.fx.now)||{};
-  const byM={};T.forEach(x=>{const m=x.d.slice(0,7);byM[m]=(byM[m]||0)+x.p});
-  const nd=new Date(),key=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),nowM=key(nd);
-  // 最初の取引の月か、12か月前のどちらか早い方から今月まで（取引の無い月は0円）
-  const b12=new Date(nd.getFullYear(),nd.getMonth()-11,1),first=[Object.keys(byM).sort()[0]||nowM,key(b12)].sort()[0];const months=[];
-  for(let d=new Date(+first.slice(0,4),+first.slice(5)-1,1);key(d)<=nowM;d.setMonth(d.getMonth()+1))months.push(key(d));
-  let cum=0;const cums={};months.forEach(m=>{cum+=byM[m]||0;cums[m]=cum});
-  FXM={T,months};if(!months.includes(SELM))SELM=nowM;
-  let h=`<div class="hd"><div class="eyebrow">自動化FX・${esc(N.mode||'練習')}</div><h1>FX</h1></div>
-   <div class="mcar" id="mcar">${months.map(m=>{const v=byM[m]||0,n=T.filter(x=>x.d.startsWith(m)),w=n.filter(x=>x.p>0).length;
-     return `<div class="mc glass" data-m="${m}"><div class="ml">${+m.slice(0,4)}年${+m.slice(5)}月${m===nowM?'<span class="tag n">今月</span>':''}</div>
-      <div class="mv ${v>=0?'up':'dn'}">${pm(v)}</div><div class="ms">${n.length?`${n.length}回の取引で${w}勝${n.length-w}敗`:'取引なし'}</div>
-      <div class="mk">累計 <b class="${cums[m]>=0?'up':'dn'}">${pm(cums[m])}</b></div></div>`}).join('')}</div>
-   <div class="mdots">← 左右に振ると、ほかの月が見られます →</div>
-   <div class="card glass" id="fxtr"></div>`;
-  el.innerHTML=h;fxTrades();
-  const c=$('#mcar');if(c){requestAnimationFrame(fxScroll);
-    let rq=0;c.onscroll=()=>{if(rq)return;rq=requestAnimationFrame(()=>{rq=0;const w=c.children[0].offsetWidth+12;const i=Math.round(c.scrollLeft/w);
-      const m=months[Math.max(0,Math.min(months.length-1,i))];if(m!==SELM){SELM=m;fxTrades()}})}}
-}
-let FXM={T:[],months:[]},SELM='',TROPEN=false;
-// 選んでいる月（最初は今月）のカードを表示する。FXタブが隠れている間は位置が測れないので、開いた時にもう一度呼ぶ
-function fxScroll(){fitTr();const c=$('#mcar');if(!c||!c.children.length||!c.offsetWidth)return;
-  const i=Math.max(0,FXM.months.indexOf(SELM));c.scrollLeft=c.children[i].offsetLeft-c.children[0].offsetLeft}
-function fxTrades(){
-  const el=$('#fxtr');if(!el)return;const L=FXM.T.filter(x=>x.d.startsWith(SELM)).slice().reverse();
-  el.innerHTML=`<div class="row" style="margin-bottom:6px"><b style="font-size:15px">${+SELM.slice(5)}月の取引</b><span style="font-size:12.5px;color:var(--sub)">${L.length}件・練習</span></div>
-   <div class="trl trbox" id="trbox">${L.length?L.map(x=>{const dd=new Date(x.d+'T00:00:00');
-    return `<div class="trr"><span class="dt">${dd.getMonth()+1}/${dd.getDate()} ${esc(tm(x.ot))}</span><span class="nm"><span class="side ${x.side==='買い'?'buy':'sell'}">${x.side==='買い'?'買':'売'}</span>${esc(x.t)}</span><span class="pp ${x.p>=0?'up':'dn'}">${pm(x.p)}</span></div>`}).join(''):'<div style="padding:6px 0;color:var(--sub);font-size:13px">この月の取引はありません。</div>'}</div>`;
-  fitTr();
-}
-// 取引の欄を、下のタブの上までの高さにする（画面全体はスクロールさせない）
-function fitTr(){const b=$('#trbox'),n=$('#nav');if(!b||!n||!b.offsetParent)return;
-  const top=b.getBoundingClientRect().top,bottom=n.getBoundingClientRect().top-22;b.style.height=Math.max(80,bottom-top)+'px'}
 function fmtPx(v){v=+v;if(!v)return'—';return v<10?v.toFixed(5):v.toFixed(3)}
 function drawChart(R){
   const svg=$('#cs');if(!svg)return;const w=svg.clientWidth||340,h=180,pad=14;
@@ -813,12 +949,12 @@ document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.p)
 // 開いた直後に画面の高さがずれることがあるので、少し後に位置を戻す
 // ほかのアプリから戻った時も、下のタブを画面の一番下に置き直す（iPhoneの高さのずれ対策）
 function fixNav(){const n=$('#nav');if(!n)return;window.scrollTo(0,0);
-  n.style.top='';n.style.bottom='';$('#main').style.height='';if(window.fitTr)fitTr();if(window.fitPl)fitPl()}
+  n.style.top='';n.style.bottom='';$('#main').style.height='';if(window.fitMoney)fitMoney()}
 ['load','pageshow','orientationchange','resize','focus'].forEach(ev=>addEventListener(ev,()=>[0,80,300,800].forEach(t=>setTimeout(fixNav,t))));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)[0,80,300,800].forEach(t=>setTimeout(fixNav,t))});
 if(window.visualViewport)visualViewport.addEventListener('resize',fixNav);
 fixNav();
-function ptrDone(){if(window.ptrDone)window.ptrDone()}
+function ptrDone(){}
 
 // ---------- 通知（フクリのアプリに届く） ----------
 let swReg=null,BELL=false;
