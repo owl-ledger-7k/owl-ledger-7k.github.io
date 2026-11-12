@@ -366,7 +366,7 @@ body{transition:none}
   <button data-p="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='37';
+const VERSION='38';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -574,36 +574,60 @@ function showTodo(){
     :'<div class="ts" style="padding:10px 0">今やることはありません。<br>全部自動で進んでいます。</div>');
 }
 
-// ---------- 利益表 ----------
-let PLOPEN=false;
+// ---------- 利益表（ハコペンの利益表と同じ形：月のカードを左右に振る＋下にその月の明細。押すと内訳） ----------
+let PLM={keys:[],L:[]},PLSEL='';
+function plRows(){
+  const B=BK(),fr=fxReal(),L=[];
+  (B.hist||[]).forEach(h=>L.push({d:String(h.d||''),k:h.k||'IPO',n:h.n||'',b:h.b||'',e:h.e||'',y:h.y,est:!!h.est,cnt:true}));
+  trades().forEach(x=>L.push({d:x.d+' '+tm(x.ot),k:'FX',n:x.t,b:fr?'':'練習',e:x.side,y:x.p,cnt:fr,fx:x}));
+  return L.sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:0);
+}
 function renderPL(){
-  const el=$('#p-pl');if(!el)return;const B=BK(),K=B.kind||{};
-  const A=acct(),set=A.filter(a=>a.inn!=null),inn=set.reduce((a,x)=>a+x.inn,0);
-  const ipo=+(K.IPO||0),bun=+(K['分売']||0),fx=fxSum(),fr=fxReal();
-  const pl=ipo+bun+(fr?fx:0);
-  const H=(B.hist||[]).map(h=>({d:String(h.d||''),k:h.k||'',n:h.n||'',b:h.b||'',e:h.e||'',y:h.y,est:h.est}));
-  trades().forEach(x=>H.push({d:x.d+' '+tm(x.ot),k:'FX',n:x.t,b:fr?'':'練習',e:x.side,y:x.p}));
-  H.sort((a,b)=>a.d<b.d?1:-1);
-  const pt=(B.pt||{}).sbi;
+  const el=$('#p-pl');if(!el)return;const L=plRows();PLM.L=L;
+  const byM={},nM={};L.forEach(x=>{const m=x.d.slice(0,7);if(!/^\d{4}-\d\d$/.test(m))return;nM[m]=(nM[m]||0)+1;if(x.cnt&&x.y!=null)byM[m]=(byM[m]||0)+x.y});
+  const nd=new Date(),key=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'),nowM=key(nd);
+  const ks=Object.keys(nM).sort(),first=ks[0]&&ks[0]<nowM?ks[0]:nowM,months=[];
+  for(let d=new Date(+first.slice(0,4),+first.slice(5)-1,1);key(d)<=nowM;d.setMonth(d.getMonth()+1))months.push(key(d));
+  let cum=0;const cums={};months.forEach(m=>{cum+=byM[m]||0;cums[m]=cum});
+  PLM.keys=months;if(!months.includes(PLSEL))PLSEL=nowM;
+  const A=acct(),set=A.filter(a=>a.inn!=null),inn=set.reduce((a,x)=>a+x.inn,0),pt=(BK().pt||{}).sbi;
   el.innerHTML=`<div class="hd"><div class="eyebrow">IPO・分売・FX</div><h1>利益表</h1>
-     <div class="cap">${set.length?yen(inn)+'円 から':'毎日12時と21時の確認のあとに出ます。'}</div>
-     <div class="big">${set.length?yen(inn+pl):'—'}<small>円</small></div>
-     <div class="gain">${gainLine(pl,inn)}</div></div>
-   <div class="glass card cash">
-     <div class="it"><div style="font-weight:700">IPO</div><b class="${ipo>=0?'up':'dn'}">${pm(ipo)}</b></div>
-     <div class="it"><div style="font-weight:700">分売</div><b class="${bun>=0?'up':'dn'}">${pm(bun)}</b></div>
-     <div class="it"><div><div style="font-weight:700">FX</div>${fr?'':'<div style="font-size:12px;color:var(--sub)">練習なので合計に入れていません</div>'}</div><b class="${fx>=0?'up':'dn'}">${pm(fx)}</b></div>
-     <div class="it"><div style="font-weight:700">SBI チャレンジポイント</div><b>${pt==null?'—':yen(pt)+' pt'}</b></div></div>
-   <div class="card glass set" style="padding:12px 18px"><button class="acc ${PLOPEN?'on':''}" onclick="PLOPEN=!PLOPEN;this.classList.toggle('on');this.nextElementSibling.classList.toggle('on');setTimeout(fitPl,320)"><span class="t">取引履歴</span><span class="s" style="margin:0">${H.length}件</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
-     <div class="accb ${PLOPEN?'on':''}"><div><div class="trl trbox" id="plbox" style="margin-top:8px">${H.length?H.map(x=>{const m=x.d.match(/\d{4}-(\d\d)-(\d\d)(?:[ T](\d\d:\d\d))?/);
-       return `<div class="trr"><span class="dt">${m?(+m[1])+'/'+(+m[2]):''}</span><span class="nm"><span class="side ${x.k==='FX'?(x.e==='買い'?'buy':'sell'):x.k==='分売'?'buy':'ipo'}">${esc(x.k==='FX'?(x.e==='買い'?'買':'売'):x.k)}</span>${esc(x.n)}<em>${esc(x.k==='FX'?(x.b||''):[x.b,x.e].filter(Boolean).join(' '))}</em></span><span class="pp ${x.y==null?'':x.y>=0?'up':'dn'}">${x.y==null?'—':(x.est?'約':'')+pm(x.y)}</span></div>`}).join('')
-       :'<div style="padding:6px 0;color:var(--sub);font-size:13px">まだ取引はありません。</div>'}</div></div></div></div>
-   <div class="foot">「約」は株データの値段から出した目安です。<br>持っている株は今の値段で数えています。</div>`;
+     <div class="cap">${set.length?`${yen(inn)}円 → <b style="color:var(--ink)">${yen(inn+cum)}円</b>（${pm(cum)}）`:'毎日12時と21時の確認のあとに金額が出ます。'}${pt==null?'':`<br>SBIのチャレンジポイント ${yen(pt)}pt`}</div></div>
+   <div class="mcar" id="plcar">${months.map(m=>{const v=byM[m]||0,n=L.filter(x=>x.d.startsWith(m)),c=n.filter(x=>x.cnt&&x.y!=null);
+     return `<div class="mc glass"><div class="ml">${+m.slice(0,4)}年${+m.slice(5)}月${m===nowM?'<span class="tag n">今月</span>':''}</div>
+      <div class="mv ${v>=0?'up':'dn'}">${pm(v)}</div><div class="ms">${n.length?`${n.length}件の取引（利益が出たもの ${c.filter(x=>x.y>0).length}件）`:'取引なし'}</div>
+      <div class="mk">累計 <b class="${cums[m]>=0?'up':'dn'}">${pm(cums[m])}</b></div></div>`}).join('')}</div>
+   <div class="mdots">← 左右に振ると、ほかの月が見られます →</div>
+   <div class="card glass" id="pllst"></div>`;
+  plList();
+  const c=$('#plcar');if(c){requestAnimationFrame(plScroll);
+    let rq=0;c.onscroll=()=>{if(rq)return;rq=requestAnimationFrame(()=>{rq=0;const w=c.children[0].offsetWidth+12;const i=Math.round(c.scrollLeft/w);
+      const m=months[Math.max(0,Math.min(months.length-1,i))];if(m!==PLSEL){PLSEL=m;plList()}})}}
+}
+function plScroll(){fitPl();const c=$('#plcar');if(!c||!c.children.length||!c.offsetWidth)return;
+  const i=Math.max(0,PLM.keys.indexOf(PLSEL));c.scrollLeft=c.children[i].offsetLeft-c.children[0].offsetLeft}
+function plTag(x){return x.k==='FX'?`<span class="side ${x.e==='買い'?'buy':'sell'}">${x.e==='買い'?'買':'売'}</span>`:`<span class="side ${x.k==='分売'?'buy':'ipo'}">${esc(x.k)}</span>`}
+function plList(){
+  const el=$('#pllst');if(!el)return;const L=PLM.L.filter(x=>x.d.startsWith(PLSEL));
+  const nx=L.filter(x=>x.k!=='FX').length,nf=L.length-nx;
+  el.innerHTML=`<div class="row" style="margin-bottom:6px"><b style="font-size:15px">${+PLSEL.slice(5)}月の明細</b><span style="font-size:12.5px;color:var(--sub)">IPO・分売 ${nx}件・FX ${nf}件</span></div>
+   <div class="trl trbox" id="plbox">${L.length?L.map(x=>{const i=PLM.L.indexOf(x),m=x.d.match(/\d{4}-(\d\d)-(\d\d)/);
+     return `<div class="trr" onclick="plSheet(${i})"><span class="dt">${m?(+m[1])+'/'+(+m[2]):''}</span><span class="nm">${plTag(x)}${esc(x.n)}<em>${esc(x.k==='FX'?x.b:[x.b,x.e].filter(Boolean).join(' '))}</em></span><span class="pp ${x.y==null?'':x.y>=0?'up':'dn'}">${x.y==null?'—':(x.est?'<small>約</small>':'')+pm(x.y)}</span></div>`}).join('')
+     :'<div style="padding:6px 0;color:var(--sub);font-size:13px">この月の取引はありません。</div>'}</div>`;
   fitPl();
 }
-// 取引履歴の欄を、下のタブの上までの高さにする（画面全体はスクロールさせない）
+// 明細1件の内訳（下から出るシート）
+function plSheet(i){const x=PLM.L[i];if(!x)return;
+  const line=(a,b)=>`<div class="trr"><span class="nm" style="font-weight:600;color:var(--sub)">${a}</span><span class="pp">${b}</span></div>`;
+  let h=line('日時',esc(x.d.replace(/-/g,'/')))+line('種類',esc(x.k)+(x.k==='FX'&&!x.cnt?'（練習）':''));
+  if(x.k==='FX'&&x.fx){const f=x.fx;h+=line('売り買い',esc(f.side))+line('入った値段',fmtPx(f.ip))+line('決済の値段',fmtPx(f.op))+(f.why?line('決済の理由',esc(f.why)):'')}
+  else h+=line('証券会社',esc(x.b))+line('結果',esc(x.e));
+  h+=line(x.k==='FX'?'損益':x.est?'利益（目安）':'利益',x.y==null?'—':`<span class="${x.y>=0?'up':'dn'}">${pm(x.y)}</span>`);
+  sheet(x.n||x.k,h+(x.est?'<div class="ts" style="padding-top:10px;font-size:12px;color:var(--sub)">株データの値段から出した目安です。<br>持っている株は今の値段で数えています。</div>':'')+(x.k==='FX'&&!x.cnt?'<div class="ts" style="padding-top:10px;font-size:12px;color:var(--sub)">FXは練習なので、合計には入れていません。</div>':''));
+}
+// 明細の欄を、下のタブの上までの高さにする（画面全体はスクロールさせない）
 function fitPl(){const b=$('#plbox'),n=$('#nav');if(!b||!n||!b.offsetParent)return;
-  const top=b.getBoundingClientRect().top,bottom=n.getBoundingClientRect().top-30;b.style.height=Math.max(80,bottom-top)+'px'}
+  const top=b.getBoundingClientRect().top,bottom=n.getBoundingClientRect().top-22;b.style.height=Math.max(80,bottom-top)+'px'}
 
 // ---------- FX ----------
 function trades(){
@@ -716,13 +740,13 @@ function go(p){TAB=p;store.set('fk_tab',p);document.body.dataset.tab=p;
   const bs=[...document.querySelectorAll('nav button')];bs.forEach(b=>b.classList.toggle('on',b.dataset.p===p));
   const i=bs.findIndex(b=>b.dataset.p===p);$('#blob').style.transform=`translateX(${i*68}px)`;$('#main').scrollTop=0;
   if(p==='fx')requestAnimationFrame(fxScroll);
-  if(p==='pl')requestAnimationFrame(fitPl);
+  if(p==='pl')requestAnimationFrame(plScroll);
   if(false)drawChart(trades().filter(x=>x.d>=new Date(Date.now()-({'7':7,'30':30,'all':99999}[FXR])*864e5).toISOString().slice(0,10)))}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.p));
 // 開いた直後に画面の高さがずれることがあるので、少し後に位置を戻す
 // ほかのアプリから戻った時も、下のタブを画面の一番下に置き直す（iPhoneの高さのずれ対策）
 function fixNav(){const n=$('#nav');if(!n)return;window.scrollTo(0,0);
-  n.style.top='';n.style.bottom='';$('#main').style.height='';if(window.fitTr)fitTr()}
+  n.style.top='';n.style.bottom='';$('#main').style.height='';if(window.fitTr)fitTr();if(window.fitPl)fitPl()}
 ['load','pageshow','orientationchange','resize','focus'].forEach(ev=>addEventListener(ev,()=>[0,80,300,800].forEach(t=>setTimeout(fixNav,t))));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)[0,80,300,800].forEach(t=>setTimeout(fixNav,t))});
 if(window.visualViewport)visualViewport.addEventListener('resize',fixNav);
