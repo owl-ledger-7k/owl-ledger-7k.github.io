@@ -404,10 +404,11 @@ body{--sun:#FF7A72;--sat:#8FB2EE;--upbg:rgba(95,211,154,.14);--dnbg:rgba(229,72,
 .astat span{display:block;font-size:10.5px;color:var(--sub)}.astat b{font-size:14px;font-variant-numeric:tabular-nums;white-space:nowrap}
 .achart{background:var(--glass);border:1px solid var(--edge);border-radius:14px;padding:10px 12px 6px;flex:none}
 .axl{display:flex;justify-content:space-between;font-size:10px;color:var(--sub);margin-top:4px}
-.arank{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;background:var(--glass);border:1px solid var(--edge);border-radius:14px;padding:8px 14px 4px;margin-top:8px}
+.arank{flex:1;min-height:0;overflow:hidden;background:var(--glass);border:1px solid var(--edge);border-radius:14px;padding:8px 14px 4px;margin-top:8px}
 .arh{font-size:12px;font-weight:600;color:var(--sub);margin-bottom:2px}
 .arank .trr .cn{flex:none;font-size:11px;color:var(--sub)}
 .page.on>.money{animation:none}
+body[data-tab=pl] main,body[data-tab=fx] main{overflow:hidden!important}
 .swp{position:relative;overflow:hidden}
 .swbg{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;padding-right:16px;background:#3a3a3e;color:#fff;font-size:12.5px;font-weight:600;border-radius:10px}
 .swp{animation:rise .45s cubic-bezier(.2,.8,.2,1) both}
@@ -438,7 +439,7 @@ body{--sun:#FF7A72;--sat:#8FB2EE;--upbg:rgba(95,211,154,.14);--dnbg:rgba(229,72,
   <button data-p="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='41';
+const VERSION='42';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -592,8 +593,13 @@ function showWait(){
 function sheet(title,html){
   let el=$('#sheet');if(!el){el=document.createElement('div');el.id='sheet';document.body.appendChild(el)}
   el.innerHTML=`<div class="sbg" onclick="closeSheet()"></div><div class="sbox glass"><div class="sgrip"></div><div class="row" style="margin-bottom:6px"><b style="font-size:18px">${esc(title)}</b><button class="btn s sub" onclick="closeSheet()">閉じる</button></div><div class="trl" style="margin:0;padding:0">${html}</div></div>`;
-  requestAnimationFrame(()=>el.classList.add('on'));
+  requestAnimationFrame(()=>el.classList.add('on'));sheetSwipe(el.querySelector('.sbox'));
 }
+function sheetSwipe(bx){let y0=null,dy=0,on=false;
+  bx.addEventListener('touchstart',e=>{y0=bx.scrollTop<=0?e.touches[0].clientY:null;dy=0;on=false},{passive:true});
+  bx.addEventListener('touchmove',e=>{if(y0==null)return;const d=e.touches[0].clientY-y0;if(!on&&d>8)on=true;if(!on)return;if(d<0){y0=null;bx.style.transform='';return}
+    if(e.cancelable)e.preventDefault();dy=d;bx.style.transition='none';bx.style.transform=`translateY(${d}px)`},{passive:false});
+  bx.addEventListener('touchend',()=>{if(y0==null&&!on)return;y0=null;bx.style.transition='';if(on&&dy>90){bx.style.transform='';closeSheet()}else bx.style.transform='';on=false})}
 function closeSheet(){const el=$('#sheet');if(el)el.classList.remove('on')}
 function stage(x){return Math.max(...Object.values(x.br).map(v=>v.bu==='要対応'?9:/当選/.test(v.l)&&!v.bu?8:v.bu==='購入済'||v.bu==='売却済'?6:v.a==='申込済'&&!v.l?5:v.l?2:1))}
 function md(s){const m=String(s).match(/(\d+)\/(\d+)\/(\d+)/);return m?`${+m[2]}/${+m[3]}`:esc(s)}
@@ -758,11 +764,11 @@ function calHtml(w,anim){
   let cells='';
   for(let i=0;i<42;i++){
     const dt=new Date(y,mo,1-first+i),ds=ymd(dt),wd=i%7,out=dt.getMonth()!==mo;
-    const L=out?[]:(by[ds]||[]),C=L.filter(x=>x.cnt),v=sumV(L);
-    const cls=['cell',out?'out':'',ds===today?'today':'',C.length?(v>0?'pos':v<0?'neg':'zero'):L.length?'prac':'',L.some(x=>x.est)?'est':''].join(' ');
+    const L=out?[]:(by[ds]||[]).filter(x=>x.cnt),C=L,v=sumV(L);
+    const cls=['cell',out?'out':'',ds===today?'today':'',C.length?(v>0?'pos':v<0?'neg':'zero'):'',L.some(x=>x.est)?'est':''].join(' ');
     const col=!out&&ds!==today&&wd===0?' style="color:var(--sun)"':!out&&ds!==today&&wd===6?' style="color:var(--sat)"':'';
     cells+=`<button class="${cls}" ${out?'tabindex="-1"':`onclick="calDay('${w}','${ds}')"`}><span class="num"${col}>${dt.getDate()}</span>`
-      +(C.length?`<span class="amt">${cmp(v)}</span>`:L.length?`<span class="amt">${L.length}件</span>`:'')+`</button>`;
+      +(C.length?`<span class="amt">${pmY(v)}</span>`:'')+`</button>`;
   }
   let strip;
   if(w==='pl'){const A=acct(),set=A.filter(a=>a.inn!=null),inn=set.reduce((a,x)=>a+x.inn,0),cumAll=sumV(rows);
@@ -800,7 +806,7 @@ function anaHtml(w,anim){
   }
   const rank={};F.forEach(x=>{const r=rank[x.name]=rank[x.name]||{n:0,v:0};r.n++;r.v+=x.v});
   const R=Object.entries(rank).sort((a,b)=>b[1].v-a[1].v),u=w==='fx'?'回':'件';
-  const rr=([nm,r])=>`<div class="trr"><span class="nm">${esc(nm)}</span><span class="cn">${r.n}${u}</span><span class="pp ${r.v<0?'dn':'up'}">${pmY(r.v)}</span></div>`;
+  MRANK[w]=R;const rr=([nm,r])=>`<div class="trr"><span class="nm">${esc(nm)}</span><span class="cn">${r.n}${u}</span><span class="pp ${r.v<0?'dn':'up'}">${pmY(r.v)}</span></div>`;
   const chip=(on,js,t)=>`<button class="${on?'on':''}" onclick="${js}">${t}</button>`;
   const pt=w==='pl'?(BK().pt||{}).sbi:null;
   return monHead(w,tot,S.tag==='all'?(w==='fx'?'FXの損益':'IPO・分売・FXの利益'):`${esc(S.tag)}の${w==='fx'?'損益':'利益'}`)
@@ -810,9 +816,11 @@ function anaHtml(w,anim){
     <div class="astat"><div><span>${w==='fx'?'取引':'件数'}</span><b>${F.length}${u}</b></div><div><span>${w==='fx'?'勝ち':'利益が出た'}</span><b>${win}/${F.length}${u}</b></div><div><span>1${u}の平均</span><b>${pmY(F.length?tot/F.length:0)}</b></div>
       <div><span>最高</span><b class="up">${sv.length?pmY(Math.max(...sv)):'−'}</b></div><div><span>最低</span><b class="${sv.length&&Math.min(...sv)<0?'dn':'up'}">${sv.length?pmY(Math.min(...sv)):'−'}</b></div><div><span>累計</span><b class="${sumV(rows)<0?'dn':'up'}">${pmY(sumV(rows))}</b></div></div>
     <div class="achart">${vals.length&&F.length?chartSvg(vals,labs,line):'<div style="padding:30px 0;text-align:center;color:var(--sub);font-size:12.5px">記録がありません。</div>'}</div>
-    <div class="arank"><div class="arh">${w==='fx'?'型ごとの損益':'銘柄ごとの利益'}</div>${R.length?R.map(rr).join('')
+    <div class="arank"><div class="arh">${w==='fx'?'型ごとの損益':'銘柄ごとの利益'}</div>${R.length?R.slice(0,3).map(rr).join('')+(R.length>3?`<button class="hidlink" style="margin-top:4px;padding:8px 0" onclick="rankAll('${w}')">ほか${R.length-3}${u==='回'?'個':'件'}を見る</button>`:'')
       :`<div style="padding:8px 0;color:var(--sub);font-size:12.5px">この期間の${w==='fx'?'取引':'記録'}はありません。</div>`}</div>`;
 }
+const MRANK={};
+function rankAll(w){const R=MRANK[w]||[],u=w==='fx'?'回':'件';sheet(w==='fx'?'型ごとの損益':'銘柄ごとの利益',R.map(([nm,r])=>`<div class="trr"><span class="nm">${esc(nm)}</span><span style="flex:none;font-size:11px;color:var(--sub)">${r.n}${u}</span><span class="pp ${r.v<0?'dn':'up'}">${pmY(r.v)}</span></div>`).join(''))}
 function anaSet(w,k,v){const S=CV[w];if(k==='p')S.p=v;else S.tag=v;redrawMoney(w)}
 function chartSvg(vals,labs,line){
   const Wd=320,H=92,P=4,n=vals.length,mx=Math.max(0,...vals),mn=Math.min(0,...vals),rg=(mx-mn)||1;
@@ -938,7 +946,7 @@ function syncSet(){const el=$('#p-set');if(!el||!el.innerHTML){renderSet();retur
   syncAcct();el.querySelectorAll('.nrow').forEach(r=>{r.style.opacity=BELL?'':'.4';const b=r.querySelector('.sw');if(b){b.disabled=!BELL;b.classList.toggle('on',NPREF[b.dataset.k]!==false)}});}
 let SETDONE='';
 function render(){renderTodo();renderIPO();renderFX();renderPL();const k=(SESS?1:0)+'|'+GON;if(SETDONE!==k){SETDONE=k;renderSet()}else syncSet()}
-function go(p){TAB=p;store.set('fk_tab',p);document.body.dataset.tab=p;
+function go(p){if((p==='pl'||p==='fx')&&CV[p]){const S=CV[p],n=new Date(),cur=new Date(n.getFullYear(),n.getMonth(),1),old=S.mon;S.mode='cal';S.mon=cur;if($('#mo-'+p))redrawMoney(p,!old?'jump':cur>old?'next':cur<old?'prev':'jump')}TAB=p;store.set('fk_tab',p);document.body.dataset.tab=p;
   document.querySelectorAll('.page').forEach(e=>e.classList.toggle('on',e.id==='p-'+p));
   const bs=[...document.querySelectorAll('nav button')];bs.forEach(b=>b.classList.toggle('on',b.dataset.p===p));
   const i=bs.findIndex(b=>b.dataset.p===p);$('#blob').style.transform=`translateX(${i*68}px)`;$('#main').scrollTop=0;
