@@ -422,6 +422,9 @@ body[data-tab=pl] main,body[data-tab=fx] main{overflow:hidden!important}
 .mcnt b{color:var(--ink);margin-left:3px}.mcnt b.up{color:var(--up)}.mcnt b.dn{color:var(--dn)}
 .mcnt em{font-style:normal;font-size:9.5px;font-weight:600;padding:0 6px;border-radius:999px;margin-left:5px;background:var(--glass2);color:var(--sub)}
 .mcnt em.real{background:color-mix(in srgb,var(--gold) 18%,transparent);color:var(--gold)}
+.mcnt{display:grid;grid-template-columns:auto auto auto;column-gap:6px;align-items:baseline;justify-content:start}
+.mcnt>b{margin-left:0!important;font-weight:600;text-align:right}.mcnt em{margin-left:0!important}.mcnt i{font-style:normal}
+.msum span{line-height:1.35}
 </style>
 </head>
 <body>
@@ -440,12 +443,12 @@ body[data-tab=pl] main,body[data-tab=fx] main{overflow:hidden!important}
   <div class="blob" id="blob"></div>
   <button data-p="todo" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>ホーム</button>
   <button data-p="ipo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M8 9h9M8 13h9M8 17h5"/></svg>申込</button>
-  <button data-p="fx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>FX</button>
-  <button data-p="pl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>収支表</button>
+  <button data-p="fx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>FX</button>
+  <button data-p="pl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>収支表</button>
   <button data-p="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='46';
+const VERSION='48';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -775,13 +778,13 @@ function calHtml(w,anim){
     cells+=`<button class="${cls}" ${out?'tabindex="-1"':`onclick="calDay('${w}','${ds}')"`}><span class="num"${col}>${dt.getDate()}</span>`
       +(C.length?`<span class="amt">${pmY(v)}</span>`:'')+`</button>`;
   }
-  let strip,left='';
+  let strip,left='',sub2='';
   if(w==='pl'){const A=acct(),set=A.filter(a=>a.inn!=null),inn=set.reduce((a,x)=>a+x.inn,0),cumAll=sumV(rows);
     const nx=mine.filter(x=>x.tag!=='FX').length,nf=mine.length-nx;
-    strip=`<span>IPO・分売<b>${nx}件</b></span><span>FX<b>${nf}件</b>${fxReal()?'':'<em>練習</em>'}</span>`+(set.length?`<span>今<b>${yen(inn+cumAll)}円</b></span>`:'');
+    left=`<div class="mcnt"><span>IPO・分売</span><b>${nx}件</b><span></span><span>FX</span><b>${nf}件</b><span>${fxReal()?'':'<em>練習</em>'}</span></div>`;strip='';
   }else{const wn=mine.filter(x=>x.v>0).length,N=(D&&D.fx&&D.fx.now)||{};
-    left=`<div class="mcnt"><div>取引<b>${mine.length}件</b><em class="${fxReal()?'real':''}">${esc(N.mode||'練習')}</em></div><div>勝ち<b class="up">${wn}件</b> 負け<b class="dn">${mine.length-wn}件</b></div></div>`;strip='';}
-  return monHead(w,sumV(mine),`累計 ${pmY(cum)}`,left)
+    left=`<div class="mcnt"><span>取引</span><b>${mine.length}件</b><span><em class="${fxReal()?'real':''}">${esc(N.mode||'練習')}</em></span><span>勝ち</span><b class="up">${wn}件</b><span>負け <b class="dn">${mine.length-wn}件</b></span></div>`;strip='';}
+  return monHead(w,sumV(mine),`累計 ${pmY(cum)}`+(sub2?`<br>${sub2}`:''),left)
     +(strip?`<div class="mstrip">${strip}</div>`:'')+`
     <div class="wdrow">${W.split('').map((d,i)=>`<span class="${i===0?'sun':i===6?'sat':''}">${d}</span>`).join('')}</div>
     <div class="calbody"><div class="cal ${anim&&anim!=='jump'?'a-'+anim:''} ${anim?'jumped':''}">${cells}</div></div>`;
