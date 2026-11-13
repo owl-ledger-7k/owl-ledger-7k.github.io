@@ -448,7 +448,7 @@ body[data-tab=pl] main,body[data-tab=fx] main{overflow:hidden!important}
   <button data-p="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='49';
+const VERSION='50';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -951,7 +951,7 @@ function renderSet(){
     <div style="margin-top:14px">${SESS?'<button class="btn sub" onclick="gLogout()">ログアウト</button>':`<button class="btn g" onclick="gLogin()">${GICON}Googleでログイン</button>`}</div></div>
    <div class="sec">安全</div>
    <div class="card glass set"><div><div class="t">合い鍵を作り直す</div><div class="s">合い鍵のリンクが漏れたかもと思ったら押してください。<br>古いリンクは使えなくなり、ほかの端末のログインも切れます。</div></div>
-    ${SESS?'<div style="margin-top:14px"><button class="btn sub" onclick="rekey()">合い鍵を作り直す</button></div>':''}</div>
+    ${SESS?'<div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap"><button class="btn sub" onclick="copyKeyLink()">合い鍵リンクをコピー</button><button class="btn sub" onclick="rekey()">合い鍵を作り直す</button></div>':''}</div>
    <div class="foot">ver.${VERSION}</div>`;
   }
   el.innerHTML=`<div id="setv">${h}</div>`;requestAnimationFrame(fitSet);
@@ -1019,6 +1019,7 @@ if(SESS){try{const c=JSON.parse(store.get('fk_cache')||'null');if(c){D=c.D;KDD=c
 renderSet();go(TAB);gReturn().then(()=>{if(SESS)load()});
 
 // 更新の自動反映：新しい版が出ていたら読み直す
+async function copyKeyLink(){const u=location.origin+location.pathname+'#k='+KEY;try{await navigator.clipboard.writeText(u);toast('合い鍵リンクをコピーしました')}catch(_){prompt('このリンクをコピーしてください',u)}}
 async function checkVer(){try{const v=(await fetch('version.txt?t='+Date.now(),{cache:'no-store'}).then(r=>r.text())).trim();if(v&&v!==VERSION)location.reload()}catch(_){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){checkVer();if(SESS)load()}});
 checkVer();
