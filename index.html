@@ -439,7 +439,7 @@ body[data-tab=pl] main,body[data-tab=fx] main{overflow:hidden!important}
   <button data-p="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='44';
+const VERSION='45';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -738,8 +738,7 @@ function pageMoney(w){
 function renderPL(){pageMoney('pl')}
 function renderFX(){pageMoney('fx')}
 function moneyInner(w,anim){const S=CV[w];
-  return `<div class="mtop"><div class="seg mseg"><button class="${S.mode==='cal'?'on':''}" onclick="setMoney('${w}','cal')">カレンダー</button><button class="${S.mode==='ana'?'on':''}" onclick="setMoney('${w}','ana')">収支表</button></div></div>`
-    +(S.mode==='cal'?calHtml(w,anim):anaHtml(w,anim));
+  S.mode='cal';return calHtml(w,anim);   // 2026/11/13 切り替えの「収支表」はなくしてカレンダーだけに
 }
 function redrawMoney(w,anim){const m=$('#mo-'+w);if(!m)return;m.innerHTML=moneyInner(w,anim);fitMoney()}
 function setMoney(w,k){if(CV[w].mode===k)return;CV[w].mode=k;redrawMoney(w)}
