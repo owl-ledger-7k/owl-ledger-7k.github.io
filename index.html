@@ -416,6 +416,12 @@ body[data-tab=pl] main,body[data-tab=fx] main{overflow:hidden!important}
 .swp+.swp .it{border-top:1px solid var(--line)}.todo .swp:first-child .it{border-top:0}
 .swhint{font-size:11px;color:var(--mute);margin-top:8px}
 .hidlink{display:block;width:100%;margin-top:14px;padding:10px 0;border:0;background:none;color:var(--mute);font:500 13px/1 inherit;text-align:center}
+.msum{border:0;background:none;padding:4px 0;font:inherit;color:inherit;text-align:right;cursor:pointer}
+.msum:active{opacity:.6}
+.mcnt{font-size:11px;color:var(--sub);line-height:1.5;font-variant-numeric:tabular-nums;white-space:nowrap}
+.mcnt b{color:var(--ink);margin-left:3px}.mcnt b.up{color:var(--up)}.mcnt b.dn{color:var(--dn)}
+.mcnt em{font-style:normal;font-size:9.5px;font-weight:600;padding:0 6px;border-radius:999px;margin-left:5px;background:var(--glass2);color:var(--sub)}
+.mcnt em.real{background:color-mix(in srgb,var(--gold) 18%,transparent);color:var(--gold)}
 </style>
 </head>
 <body>
@@ -439,7 +445,7 @@ body[data-tab=pl] main,body[data-tab=fx] main{overflow:hidden!important}
   <button data-p="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='45';
+const VERSION='46';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -748,12 +754,12 @@ function calGo(w,n){const S=CV[w],now=new Date(),cur=new Date(now.getFullYear(),
   S.mon=n===0?cur:new Date(S.mon.getFullYear(),S.mon.getMonth()+n*step,1);
   redrawMoney(w,S.mon>old?'next':S.mon<old?'prev':n===0?'jump':'');
 }
-function monHead(w,big,sub){const S=CV[w],now=new Date(),isCur=S.mon.getFullYear()===now.getFullYear()&&S.mon.getMonth()===now.getMonth();
+function monHead(w,big,sub,left){const S=CV[w],now=new Date(),isCur=S.mon.getFullYear()===now.getFullYear()&&S.mon.getMonth()===now.getMonth();
   const y=S.mon.getFullYear(),mo=S.mon.getMonth()+1,ana=S.mode==='ana',nav=!(ana&&S.p==='all');
   const lab=ana&&S.p==='year'?`<small>年間</small><b>${y}年</b>`:ana&&S.p==='all'?`<small>これまで</small><b>全期間</b>`:`<small>${y}年</small><b>${mo}月</b>`;
-  return `<div class="calhead"><div>${isCur||!nav?'':`<button class="todaybtn" onclick="calGo('${w}',0)">今月</button>`}</div>
+  return `<div class="calhead"><div>${left||''}</div>
     <div class="mnav">${nav?`<button class="nb" onclick="calGo('${w}',-1)" aria-label="前へ">${ARW('M15 5l-7 7 7 7')}</button>`:''}<div class="mlabel">${lab}</div>${nav?`<button class="nb" onclick="calGo('${w}',1)" aria-label="次へ">${ARW('M9 5l7 7-7 7')}</button>`:''}</div>
-    <div class="msum"><b class="${big<0?'dn':'up'}">${pmY(big)}</b><span>${sub}</span></div></div>`;
+    <button class="msum" onclick="monList('${w}')"><b class="${big<0?'dn':'up'}">${pmY(big)}</b><span>${sub}</span></button></div>`;
 }
 function calHtml(w,anim){
   const S=CV[w],y=S.mon.getFullYear(),mo=S.mon.getMonth(),pre=`${y}-${String(mo+1).padStart(2,'0')}`;
@@ -769,17 +775,26 @@ function calHtml(w,anim){
     cells+=`<button class="${cls}" ${out?'tabindex="-1"':`onclick="calDay('${w}','${ds}')"`}><span class="num"${col}>${dt.getDate()}</span>`
       +(C.length?`<span class="amt">${pmY(v)}</span>`:'')+`</button>`;
   }
-  let strip;
+  let strip,left='';
   if(w==='pl'){const A=acct(),set=A.filter(a=>a.inn!=null),inn=set.reduce((a,x)=>a+x.inn,0),cumAll=sumV(rows);
     const nx=mine.filter(x=>x.tag!=='FX').length,nf=mine.length-nx;
     strip=`<span>IPO・分売<b>${nx}件</b></span><span>FX<b>${nf}件</b>${fxReal()?'':'<em>練習</em>'}</span>`+(set.length?`<span>今<b>${yen(inn+cumAll)}円</b></span>`:'');
   }else{const wn=mine.filter(x=>x.v>0).length,N=(D&&D.fx&&D.fx.now)||{};
-    strip=`<span>取引<b>${mine.length}回</b></span><span>勝ち<b class="up">${wn}</b>・負け<b class="dn">${mine.length-wn}</b></span><span><em class="${fxReal()?'real':''}">${esc(N.mode||'練習')}</em></span>`;}
-  return monHead(w,sumV(mine),`累計 ${pmY(cum)}`)
-    +`<div class="mstrip">${strip}</div>
+    left=`<div class="mcnt"><div>取引<b>${mine.length}件</b><em class="${fxReal()?'real':''}">${esc(N.mode||'練習')}</em></div><div>勝ち<b class="up">${wn}件</b> 負け<b class="dn">${mine.length-wn}件</b></div></div>`;strip='';}
+  return monHead(w,sumV(mine),`累計 ${pmY(cum)}`,left)
+    +(strip?`<div class="mstrip">${strip}</div>`:'')+`
     <div class="wdrow">${W.split('').map((d,i)=>`<span class="${i===0?'sun':i===6?'sat':''}">${d}</span>`).join('')}</div>
     <div class="calbody"><div class="cal ${anim&&anim!=='jump'?'a-'+anim:''} ${anim?'jumped':''}">${cells}</div></div>`;
 }
+function monList(w){   // 2026/11/13 右上の金額を押すと、その月の取引の一覧
+  const S=CV[w],pre=`${S.mon.getFullYear()}-${String(S.mon.getMonth()+1).padStart(2,'0')}`;
+  const L=calRows(w).filter(x=>x.day.startsWith(pre)).sort((a,b)=>a.day<b.day?1:a.day>b.day?-1:b.i-a.i),tot=sumV(L);
+  sheet(`${S.mon.getMonth()+1}月の${w==='fx'?'取引':'明細'}`,(L.some(x=>x.cnt)?`<div class="dtot ${tot<0?'dn':'up'}">${pmY(tot)}</div>`:'')
+    +(L.length?L.map(x=>dayRow(w,x,true)).join(''):'<div class="ts" style="padding:8px 0;color:var(--sub)">この月の取引はありません。</div>'));
+}
+function dayRow(w,x,dd){const f=w==='fx'?x.fx:x.x.fx;const t=f?`<span class="side ${f.side==='買い'?'buy':'sell'}">${f.side==='買い'?'買':'売'}</span>`:`<span class="side ${x.tag==='分売'?'buy':'ipo'}">${esc(x.tag)}</span>`;
+  const sub=w==='fx'?esc(tm(f.ot)):esc(x.x.k==='FX'?x.x.b:[x.x.b,x.x.e].filter(Boolean).join(' '));const m=x.day.split('-');
+  return `<div class="trr" onclick="${w==='fx'?`fxSheet(${x.i})`:`plSheet(${x.i})`}">${dd?`<span class="dt" style="width:38px">${+m[1]}/${+m[2]}</span>`:''}<span class="nm">${t}${esc(x.name)}<em>${sub}</em></span><span class="pp ${!x.cnt?'':x.v>=0?'up':'dn'}">${x.x&&x.x.y==null?'—':(x.est?'<small>約</small>':'')+pmY(x.v)}</span></div>`}
 function calDay(w,ds){
   const L=calRows(w).filter(x=>x.day===ds),[,m,d]=ds.split('-').map(Number),tot=sumV(L),C=L.filter(x=>x.cnt);
   const row=x=>{const f=w==='fx'?x.fx:x.x.fx;const t=f?`<span class="side ${f.side==='買い'?'buy':'sell'}">${f.side==='買い'?'買':'売'}</span>`:`<span class="side ${x.tag==='分売'?'buy':'ipo'}">${esc(x.tag)}</span>`;
