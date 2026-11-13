@@ -94,7 +94,8 @@ main{position:relative;z-index:1;min-height:100dvh;
 .ln.ok{background:var(--up)}
 .memo{font-size:12px;color:var(--sub);margin-top:6px;line-height:1.5}
 .tag{display:inline-block;font-size:11px;font-weight:800;padding:2px 8px;border-radius:8px;margin-left:6px;vertical-align:2px}
-.tag.g{background:rgba(10,155,98,.15);color:var(--up)}.tag.b{background:rgba(224,69,58,.13);color:var(--dn)}.tag.n{background:var(--line);color:var(--sub)}
+.tag.g{background:rgba(10,155,98,.15);color:var(--up)}.tag.p{background:color-mix(in srgb,#A78BFA 20%,transparent);color:#A78BFA}.tag.x{background:var(--line);color:var(--sub)}#acbox .tag,.acoff .tag{white-space:nowrap}#acbox .navr .s,.acoff .navr .s{max-width:none;flex:none}
+.acoff{margin-top:12px}.acoff summary{font-size:13px;color:var(--sub);cursor:pointer;padding:6px 2px;list-style:none}.acoff summary::-webkit-details-marker{display:none}.acoff summary::before{content:'› ';display:inline-block}.acoff[open] summary::before{transform:rotate(90deg)}.tag.b{background:rgba(224,69,58,.13);color:var(--dn)}.tag.n{background:var(--line);color:var(--sub)}
 .empty{text-align:center;color:var(--sub);font-size:14px;line-height:1.8;padding:30px 20px}
 /* 予定 */
 .day{margin:14px 16px 0}
@@ -459,7 +460,7 @@ body[data-tab=pl] main,body[data-tab=fx] main{overflow:hidden!important}
   <button data-p="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='51';
+const VERSION='52';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -713,17 +714,36 @@ function todoSwipe(){document.querySelectorAll('#todol .it').forEach(el=>{let x0
 // ---------- 設定：証券口座（取り扱うか・入金額。スプレッドシートの設定タブに書く） ----------
 // 自動の申込に対応しているのはSBI・楽天・DMM。ほかは「口座あり」にすると入金額が合計に入り、対応を足すときの目印になる
 const AUTO=['SBI','楽天','DMM'];
-const ALLB=['SBI','楽天','DMM','三菱UFJ eスマート','松井','マネックス','SMBC日興','野村','大和','みずほ','岩井コスモ','岡三','東海東京','SBIネオトレード','GMOクリック','丸三'];
+const ALLB=['SBI','楽天','DMM','三菱UFJ eスマート','野村','SMBC日興','大和','松井','みずほ','岩井コスモ','SBIネオトレード','マネックス','岡三','東海東京','GMOクリック','丸三'];
+// 2026/11/14 口座の状況（設定タブの「状況：〇〇」）と入金予定（「予定：〇〇」）を出す。状況はClaudeが書き込む
+const ST_ORDER=['本番','試運転中','開設済み','申込済み','やめた'];
+const ST_TAG={本番:'g',試運転中:'p',開設済み:'p',申込済み:'n',やめた:'x'};
+function acctSt(b){const v=String(((D&&D.cfg)||{})['状況：'+b]??'').trim();if(v)return v;if(AUTO.includes(b))return acctOn(b)?'本番':'やめた';return acctOn(b)?'開設済み':'やめた'}
+function acctPlan(b){return cfgNum('予定：'+b)}
+function acctCash(b){const c=(((D&&D.status)||{}).cash||{})[b];return c&&c.yen!=null?+c.yen:null}
+const man=v=>{v=Math.round(+v||0);return Math.abs(v)>=10000?(Math.round(v/1000)/10).toLocaleString()+'万円':yen(v)+'円'};
+function acctSub(b){const st=acctSt(b);if(st==='やめた')return '';const p=acctPlan(b),c=acctCash(b),y=acctYen(b),o=[];
+  if(c!=null)o.push('今 '+man(c));else if(y)o.push('入金 '+man(+y));if(p!=null)o.push(p?'予定 '+man(p):'入金不要');return o.join('／')}
 const ACCT_HINT={SBI:'空欄なら、口座のお金から自動で計算します。',楽天:'NISAの分は入れず、フクリで使う金額だけ入れてください。',DMM:'空欄なら、口座のお金から自動で計算します。'};
 function acctOn(b){const v=String(((D&&D.cfg)||{})['取扱：'+b]??'').trim();return AUTO.includes(b)?v!=='しない':v==='する'}
 function acctYen(b){const v=((D&&D.cfg)||{})['元金：'+b];return v==null||String(v).trim()===''?'':String(Math.round(+String(v).replace(/[^\d.-]/g,'')||0))}
 function acctState(b){const y=acctYen(b);if(!acctOn(b))return AUTO.includes(b)?'取り扱わない':'口座なし';return (AUTO.includes(b)?'自動':'口座あり')+(y?'・'+yen(+y)+'円':'')}
+function acctRow(b){const st=acctSt(b);return `<button class="navr" onclick="goSet('a:${b}')"><span class="t">${b}<span class="tag ${ST_TAG[st]||'n'}">${esc(st)}</span></span><span class="s">${acctSub(b)}</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>`}
 function acctList(){
-  return `<div class="card glass set lst" id="acbox" style="margin-top:4px">${ALLB.map(b=>`<button class="navr" onclick="goSet('a:${b}')"><span class="t">${b}${AUTO.includes(b)?'<span class="tag g">自動</span>':''}</span><span class="s">${acctState(b)}</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>`).join('')}</div>
-   <div class="foot">自動の申込はSBI・楽天・DMMに対応しています。<br>ほかの口座を作ったら「口座あり」にしてください。</div>`;
+  const live=ALLB.filter(b=>acctSt(b)!=='やめた'),off=ALLB.filter(b=>acctSt(b)==='やめた');
+  live.sort((a,b)=>ST_ORDER.indexOf(acctSt(a))-ST_ORDER.indexOf(acctSt(b)));
+  const plan=live.reduce((a,b)=>a+(acctPlan(b)||0),0),n=k=>live.filter(b=>acctSt(b)===k).length;
+  return `<div class="foot" style="margin:0 0 8px">本番${n('本番')}社・試運転/開設済み${n('試運転中')+n('開設済み')}社・申込済み${n('申込済み')}社。<br>入金予定の合計は${yen(plan)}円です。</div>
+   <div class="card glass set lst" id="acbox" style="margin-top:4px">${live.map(acctRow).join('')}</div>
+   ${off.length?`<details class="acoff"><summary>やめた口座（${off.length}社）</summary><div class="card glass set lst" style="margin-top:6px">${off.map(acctRow).join('')}</div></details>`:''}
+   <div class="foot">状況は、口座が開いたり自動に対応したりするとClaudeが更新します。<br>「本番」の口座は毎晩21時に自動で申し込みます。</div>`;
 }
-function acctDetail(b){const au=AUTO.includes(b);
-  return `<div class="card glass set acrow" data-b="${b}" style="margin-top:4px">
+function acctDetail(b){const au=AUTO.includes(b),st=acctSt(b),p=acctPlan(b),c=acctCash(b),memo=String(((D&&D.cfg)||{})['状況メモ：'+b]??'').trim();
+  return `<div class="card glass set" style="margin-top:4px">
+   <div class="row"><div><div class="t">状況</div><div class="s">${{本番:'毎晩21時に自動で申し込んでいます。',試運転中:'自動の申込を試しています。<br>問題なければ本番に加えます。',開設済み:'口座はできています。<br>自動の申込はこれから対応します。',申込済み:'口座の開設を待っています。',やめた:'この口座は使いません。'}[st]||''}</div></div><span class="tag ${ST_TAG[st]||'n'}">${esc(st)}</span></div>
+   <div class="row"><div><div class="t">入金予定</div><div class="s">抽選の時に口座に入れておく金額です。</div></div><b>${p==null?'—':p?yen(p)+'円':'不要'}</b></div>
+   ${c!=null?`<div class="row"><div><div class="t">今の口座のお金</div><div class="s">毎晩21時の確認で更新します。</div></div><b>${yen(c)}円</b></div>`:''}</div>
+   <div class="card glass set acrow" data-b="${b}" style="margin-top:12px">
    <div class="row"><div><div class="t">${au?'取り扱う':'口座あり'}</div><div class="s">${au?'オフにすると、次の自動処理から申込などを止めます。':'自動の申込はまだ対応していません。<br>オンにすると、入金額が合計に入ります。'}</div></div>
     <button class="sw ${acctOn(b)?'on':''}" aria-label="${b}" onclick="acctSave('${b}',{on:!this.classList.contains('on')},this)"></button></div>
    <div class="row"><div style="flex:1"><div class="t">入金額</div><div class="s">${ACCT_HINT[b]||'この口座に入れた金額です。'}</div>
@@ -740,8 +760,8 @@ async function acctSave(b,o,btn){
 // 画面を作り直さず、入力欄とスイッチだけを今の値に合わせる
 function syncAcct(force){document.querySelectorAll('.acrow').forEach(r=>{const b=r.dataset.b,i=r.querySelector('input'),s=r.querySelector('.sw');
   if(i&&(force||document.activeElement!==i))i.value=acctYen(b)?yen(+acctYen(b)):'';if(s)s.classList.toggle('on',acctOn(b))});
-  const h=$('#acchd');if(h)h.textContent=ALLB.filter(acctOn).join('・')||'なし';
-  document.querySelectorAll('#acbox .navr').forEach((x,i)=>{const s=x.querySelector('.s');if(s)s.textContent=acctState(ALLB[i])})}
+  const h=$('#acchd');if(h)h.textContent=ALLB.filter(b=>acctSt(b)==='本番').join('・')||'なし';
+  document.querySelectorAll('#acbox .navr').forEach(x=>{const m=(x.getAttribute('onclick')||'').match(/a:([^']+)/),s=x.querySelector('.s');if(m&&s)s.textContent=acctSub(m[1])})}
 // ホーム画面のアイコンに、今やることの件数を赤い数字で出す
 function appBadge(n){try{if(!navigator.setAppBadge)return;(n?navigator.setAppBadge(n):navigator.clearAppBadge()).catch(()=>{})}catch(_){}}
 
@@ -973,7 +993,7 @@ function renderSet(){
     h=`<div class="hd"><div class="eyebrow">フクリ</div><h1>設定</h1></div>
    <div class="card glass set lst" style="margin-top:4px">
     <button class="navr" onclick="goSet('n')"><span class="t">通知</span><span class="s" id="bellhd">${BELL?'オン':'オフ'}</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
-    <button class="navr" onclick="goSet('a')"><span class="t">証券口座</span><span class="s" id="acchd">${ALLB.filter(acctOn).join('・')||'なし'}</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>
+    <button class="navr" onclick="goSet('a')"><span class="t">証券口座</span><span class="s" id="acchd">${ALLB.filter(b=>acctSt(b)==='本番').join('・')||'なし'}</span><svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>
    <div class="sec">アカウント</div>
    <div class="card glass set"><div class="row"><div>${g}</div></div>
     <div style="margin-top:14px">${SESS?'<button class="btn sub" onclick="gLogout()">ログアウト</button>':`<button class="btn g" onclick="gLogin()">${GICON}Googleでログイン</button>`}</div></div>
