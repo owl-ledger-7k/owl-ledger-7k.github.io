@@ -460,7 +460,7 @@ body[data-tab=pl] main,body[data-tab=fx] main{overflow:hidden!important}
   <button data-p="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='52';
+const VERSION='53';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -713,7 +713,7 @@ function todoSwipe(){document.querySelectorAll('#todol .it').forEach(el=>{let x0
 
 // ---------- 設定：証券口座（取り扱うか・入金額。スプレッドシートの設定タブに書く） ----------
 // 自動の申込に対応しているのはSBI・楽天・DMM。ほかは「口座あり」にすると入金額が合計に入り、対応を足すときの目印になる
-const AUTO=['SBI','楽天','DMM'];
+const AUTO=['SBI','楽天','DMM','野村'];
 const ALLB=['SBI','楽天','DMM','三菱UFJ eスマート','野村','SMBC日興','大和','松井','みずほ','岩井コスモ','SBIネオトレード','マネックス','岡三','東海東京','GMOクリック','丸三'];
 // 2026/11/14 口座の状況（設定タブの「状況：〇〇」）と入金予定（「予定：〇〇」）を出す。状況はClaudeが書き込む
 const ST_ORDER=['本番','試運転中','開設済み','申込済み','やめた'];
