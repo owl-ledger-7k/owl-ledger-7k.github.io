@@ -460,7 +460,7 @@ body[data-tab=pl] main,body[data-tab=fx] main{overflow:hidden!important}
   <button data-p="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button>
 </nav>
 <script>
-const VERSION='53';
+const VERSION='54';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -659,7 +659,9 @@ function renderTodo(){
   const H=(BK().hist||[]).filter(h=>h.y!=null),ipo=H.filter(h=>(h.k||'IPO')==='IPO').reduce((a,h)=>a+(+h.y||0),0),bun=H.filter(h=>h.k==='分売').reduce((a,h)=>a+(+h.y||0),0);
   const S=(D&&D.status)||{},NI=S.nisa||null,BA=S.bank||null,fr=fxReal(),fx=fxSum(),fxIn=fr?(cfgNum('元金：GMOコイン')||0):0;
   const nIn=NI&&NI.inn!=null?+NI.inn:null,nG=NI&&NI.gain!=null?+NI.gain:null,bk=BA&&BA.yen!=null?+BA.yen:null;
-  const total=(set.length?inn+pl:0)+(nIn!=null&&nG!=null?nIn+nG:0)+(bk||0)+(fr?fxIn+fx:0),gain=pl+(nG||0)+(fr?fx:0),any=set.length||NI||BA;
+  // NISA：今入っている金額・今の分で増えた額（含み益）・累計で増えた額（引き出し分も含む）の3つ（2026/11/14）
+  const nv=x=>x!=null&&x!==''&&isFinite(+x)?+x:null,nNow=NI?nv(NI.now??NI.val??NI.yen):null,nUr=NI?nv(NI.unreal??NI.pl):null;
+  const total=(set.length?inn+pl:0)+(nNow!=null?nNow:(nIn!=null&&nG!=null?nIn+nG:0))+(bk||0)+(fr?fxIn+fx:0),gain=pl+(nG||0)+(fr?fx:0),any=set.length||NI||BA;
   const sg=v=>`<span class="${v<0?'dn':'up'}">${pm(v)}</span>`,wait='<div class="hs">次の確認のあとに出ます</div>';
   el.innerHTML=`<div class="hd hrow"><div><div class="eyebrow">フクリ</div><h1>ホーム</h1></div>
      <button class="hbell" aria-label="今やること" onclick="showTodo()"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>${n?`<b class="badge">${n}</b>`:''}</button></div>
@@ -670,8 +672,11 @@ function renderTodo(){
     <div class="glass ht"><div class="hk"><i style="background:#A78BFA"></i>IPO・分売</div><div class="hs">入金した額</div>
       ${set.length?`<div class="hv">${yen(inn)}円</div><div class="hp">${sg(pl)}</div>
       <div class="hl"><span>IPO</span>${sg(ipo)}</div><div class="hl"><span>分売</span>${sg(bun)}</div>`:wait}</div>
-    <div class="glass ht"><div class="hk"><i style="background:#7cc7ff"></i>NISA</div><div class="hs">入金した額</div>
-      ${nIn!=null?`<div class="hv">${yen(nIn)}円</div><div class="hp">${nG==null?'':sg(nG)}</div><div class="hs">引き出した分も含む</div>`:wait}</div>
+    <div class="glass ht"><div class="hk"><i style="background:#7cc7ff"></i>NISA</div><div class="hs">今入っている金額</div>
+      ${NI?`<div class="hv">${nNow!=null?yen(nNow)+'円':'—'}</div>
+      <div class="hl"><span>今の分で増えた</span>${nUr!=null?sg(nUr):'—'}</div>
+      <div class="hl"><span>累計で増えた</span>${nG!=null?sg(nG):'—'}</div>
+      <div class="hs">累計は引き出した分も含む</div>`:wait}</div>
     <div class="glass ht"><div class="hk"><i style="background:#5FD39A"></i>FX${fr?'':'<span class="tg2">練習</span>'}</div><div class="hs">入金した額</div>
       <div class="hv ${fr?'':'mu'}">${yen(fxIn)}円</div><div class="hp">${fr?sg(fx):`<span class="mu">${pm(fx)}</span>`}</div>${fr?'':'<div class="hs">練習なので合計に入れない</div>'}</div>
     <div class="glass ht"><div class="hk"><i style="background:#d14b4b"></i>楽天銀行</div><div class="hs">残高</div>
