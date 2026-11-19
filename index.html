@@ -561,7 +561,7 @@ function LGBar(nav,o){
 <!-- LGBAR:END -->
 <script>LGBar(document.getElementById('nav'),{sel:'button',acc:'#A78BFA'})</script>
 <script>
-const VERSION='58';
+const VERSION='59';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -1033,7 +1033,7 @@ function fxSheet(i){const f=trades()[i];if(!f)return;
 // ---------- FX ----------
 function trades(){
   return ((D&&D.fx&&D.fx.trades)||[]).map(r=>({d:String(r[0]).slice(0,10),t:String(r[1]),side:String(r[2]),it:String(r[3]).slice(-8,-3)||r[3],ip:+r[4],ot:r[5],op:+r[6],why:String(r[7]||''),p:+r[8]||0,mode:r[9]}))
-    .filter(x=>x.d&&!isNaN(x.p)).sort((a,b)=>(a.d+a.ot)<(b.d+b.ot)?-1:1);
+    .filter(x=>x.d&&!isNaN(x.p)&&(!fxReal()||/本番/.test(String(x.mode||'')))).sort((a,b)=>(a.d+a.ot)<(b.d+b.ot)?-1:1);
 }
 function tm(v){const s=String(v);const m=s.match(/T(\d\d:\d\d)/)||s.match(/^(\d{1,2}:\d\d)/);return m?m[1]:s}
 function fmtPx(v){v=+v;if(!v)return'—';return v<10?v.toFixed(5):v.toFixed(3)}
