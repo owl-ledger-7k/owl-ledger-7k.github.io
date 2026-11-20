@@ -561,7 +561,7 @@ function LGBar(nav,o){
 <!-- LGBAR:END -->
 <script>LGBar(document.getElementById('nav'),{sel:'button',acc:'#A78BFA'})</script>
 <script>
-const VERSION='59';
+const VERSION='60';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -778,14 +778,26 @@ function renderTodo(){
       <div class="hl"><span>今の分で増えた</span>${nUr!=null?sg(nUr):'—'}</div>
       <div class="hl"><span>累計で増えた</span>${nG!=null?sg(nG):'—'}</div>
       <div class="hs">累計は引き出した分も含む</div>`:wait}</div>
-    <div class="glass ht tap" onclick="go('ipo')"><div class="hk"><i style="background:#A78BFA"></i>IPO・分売<span class="go" style="margin-left:auto">›</span></div><div class="hs">入金した額</div>
-      ${set.length?`<div class="hv">${yen(inn)}円</div><div class="hp">${sg(pl)}</div>
+    <div class="glass ht tap" onclick="go('ipo')"><div class="hk"><i style="background:#A78BFA"></i>IPO・分売<span class="go" style="margin-left:auto">›</span></div><div class="hs">残高</div>
+      ${set.length?`<div class="hv">${yen(inn+pl)}円</div>
+      <div class="hl"><span>入金額</span>${yen(inn)}円</div><div class="hl"><span>変動</span>${sg(pl)}</div>
       <div class="hl"><span>IPO</span>${sg(ipo)}</div><div class="hl"><span>分売</span>${sg(bun)}</div>`:wait}</div>
-    <div class="glass ht tap" onclick="go('fx')"><div class="hk"><i style="background:#5FD39A"></i>FX${fr?'':'<span class="tg2">練習</span>'}<span class="go" style="margin-left:auto">›</span></div><div class="hs">入金した額</div>
-      <div class="hv ${fr?'':'mu'}">${yen(fxIn)}円</div><div class="hp">${fr?sg(fx):`<span class="mu">${pm(fx)}</span>`}</div>${fr?'':'<div class="hs">練習なので合計に入れない</div>'}</div>
+    <div class="glass ht tap" onclick="go('fx')"><div class="hk"><i style="background:#5FD39A"></i>FX${fr?'':'<span class="tg2">練習</span>'}<span class="go" style="margin-left:auto">›</span></div><div class="hs">残高</div>
+      <div class="hv ${fr?'':'mu'}">${yen(fxIn+(fr?fx:0))}円</div>
+      <div class="hl"><span>入金額</span>${yen(fxIn)}円</div><div class="hl"><span>変動</span>${fr?sg(fx):`<span class="mu">${pm(fx)}</span>`}</div>${fr?'':'<div class="hs">練習なので合計に入れない</div>'}</div>
    </div>
+   ${divRow(S.div)}
    <button class="glass hrow2" onclick="showAcct()"><span>証券口座ごと（${A.length}社）</span><span class="mu">開く ›</span></button>`;
 }
+// 配当金（2026/11/21）：楽天・SBIなどの配当金の履歴を毎晩読んで、今年の合計と累計を出す。NISAで持っている株の分も入る
+function divRow(V){const sg=v=>`<span class="${v<0?'dn':'up'}">${pm(v)}</span>`;
+  return `<button class="glass hrow2" onclick="showDiv()"><span><i style="display:inline-block;width:8px;height:8px;border-radius:50%;background:#F5C451;margin-right:6px"></i>配当金</span>`
+   +(V&&V.year!=null?`<span style="font-variant-numeric:tabular-nums">今年 ${sg(+V.year)}<span class="mu" style="margin-left:8px">累計 ${pm(+(V.total||0))}</span></span>`:'<span class="mu">次の確認のあとに出ます</span>')+`</button>`}
+function showDiv(){const V=((D&&D.status)||{}).div||{},L=(V.list||[]).slice().reverse();
+  sheet('配当金',(V.year!=null?`<div class="dtot up">今年 ${pm(+V.year)}</div>`:'')
+   +(L.length?L.map(x=>`<div class="trr"><span class="dt" style="width:42px">${esc(String(x.d||'').slice(5).replace('-','/'))}</span><span class="nm">${esc(x.n||'')}<em>${esc([x.b,x.a].filter(Boolean).join(' '))}</em></span><span class="pp up">${pm(+x.y||0)}</span></div>`).join('')
+     :'<div style="padding:8px 0;color:var(--sub);font-size:12.5px">まだ記録がありません。<br>毎晩21時の確認で、証券会社の配当金の履歴を読みます。</div>')
+   +'<div class="ts" style="padding-top:10px;font-size:12px;color:var(--sub)">税金を引いたあとの、口座に入った金額です（楽天）。<br>合計は、優待クロスの配当落調整金も差し引いた金額です。<br>全部の合計には入れていません。</div>')}
 function showAcct(){const A=acct();
   sheet('証券口座ごと',`<div class="cash">${A.map(a=>`<div class="it"><div><div style="font-weight:700">${a.b}</div><div style="font-size:12px;color:var(--sub)">${a.inn==null?(a.b==='楽天'||!AUTO.includes(a.b)?'設定の証券口座で金額を入れてください':'次の確認のあとに出ます'):'入れた額 '+yen(a.inn)+'円'}</div></div>
      <div style="text-align:right"><b style="font-size:17px">${a.now==null?'—':yen(a.now)+'円'}</b><div style="font-size:12.5px;font-weight:700">${a.inn==null?'':gainLine(a.pl,a.inn)}</div></div></div>`).join('')}</div>
