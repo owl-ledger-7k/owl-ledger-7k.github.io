@@ -429,6 +429,7 @@ body[data-tab=pl] main,body[data-tab=fx] main{overflow:hidden!important}
 .ht{padding:12px 14px;min-width:0}
 .hk{font-size:12px;color:var(--sub);display:flex;align-items:center;gap:6px}.hk i{width:8px;height:8px;border-radius:50%;display:inline-block}
 .hs{font-size:10.5px;color:var(--mute);margin-top:6px}
+.hat{font-size:10px;color:var(--mute);margin-top:4px;font-variant-numeric:tabular-nums}.hat.old{color:var(--warn)}
 .hv{font-size:18px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:1px;white-space:nowrap}
 .hp{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;margin-top:2px}
 .hl{display:flex;justify-content:space-between;font-size:11px;color:var(--sub);font-variant-numeric:tabular-nums;margin-top:2px}
@@ -615,7 +616,7 @@ LSwipe.remove=(box,then)=>{if(LSwipe.cur&&LSwipe.cur.box===box)LSwipe.cur=null;c
 </script>
 <script>LGBar(document.getElementById('nav'),{sel:'button',acc:'#A78BFA'})</script>
 <script>
-const VERSION='62';
+const VERSION='63';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -839,6 +840,10 @@ function acct(){const B=BK(),C=((D&&D.status)||{}).cash||{};return ALLB.filter(a
   if(inn==null&&(b==='SBI'||b==='DMM')&&C[b]&&C[b].yen!=null){const now=(+C[b].yen||0)+(+((B.hv||{})[b]||0));inn=now-pl;auto=true}
   return{b,inn,pl,auto,now:inn==null?null:inn+pl}})}
 function gainLine(pl,inn){const pc=inn?(pl/inn*100):0;return `<span class="${pl>=0?'up':'dn'}">${pm(pl)}</span>${inn?`<span class="pc">（${pl>=0?'+':'−'}${Math.abs(pc).toFixed(1)}%）</span>`:''}`}
+// いつの数字かを出す（2026/11/25）。半日より古いと色を変える
+function atFmt(s){if(!s)return'';const d=new Date(String(s).replace(' ','T'));if(isNaN(d))return'';const t=new Date(),y=new Date(t-864e5);
+  const hm=d.getHours()+':'+String(d.getMinutes()).padStart(2,'0'),day=d.toDateString()===t.toDateString()?'今日':d.toDateString()===y.toDateString()?'昨日':(d.getMonth()+1)+'/'+d.getDate();
+  return `<div class="hat${t-d>13*36e5?' old':''}">${day} ${hm} 時点</div>`}
 function renderTodo(){
   const el=$('#p-todo');const rows=(D&&D.ipo)||[];
   const all=todoItems(rows);TODO=all;const it=all.filter(x=>!HID.includes(x.t)&&!DEL.includes(x.t));const n=it.filter(x=>x.w).length;appBadge(n);
@@ -858,16 +863,16 @@ function renderTodo(){
      <div class="gain">${any?`${sg(gain)} <span class="hlab">増やせた額</span>`:'<span class="cap">毎日12時と21時の確認のあとに出ます。</span>'}</div></div>
    <div class="hg">
     <div class="glass ht"><div class="hk"><i style="background:#d14b4b"></i>楽天銀行</div><div class="hs">残高</div>
-      ${bk!=null?`<div class="hv">${yen(bk)}円</div><div class="hs">増やせた額には入れない</div>`:wait}</div>
+      ${bk!=null?`<div class="hv">${yen(bk)}円</div><div class="hs">増やせた額には入れない</div>${atFmt(BA.at)}`:wait}</div>
     <div class="glass ht tap" onclick="showNisa()"><div class="hk"><i style="background:#7cc7ff"></i>NISA<span class="go" style="margin-left:auto">›</span></div><div class="hs">今入っている金額</div>
       ${NI?`<div class="hv">${nNow!=null?yen(nNow)+'円':'—'}</div>
       <div class="hl"><span>今の分で増えた</span>${nUr!=null?sg(nUr):'—'}</div>
       <div class="hl"><span>累計で増えた</span>${nG!=null?sg(nG):'—'}</div>
-      <div class="hs">累計は引き出した分も含む</div>`:wait}</div>
+      <div class="hs">累計は引き出した分も含む</div>${atFmt(NI.at)}`:wait}</div>
     <div class="glass ht tap" onclick="go('ipo')"><div class="hk"><i style="background:#A78BFA"></i>IPO・分売<span class="go" style="margin-left:auto">›</span></div><div class="hs">残高</div>
       ${set.length?`<div class="hv">${yen(inn+pl)}円</div>
       <div class="hl"><span>入金額</span>${yen(inn)}円</div><div class="hl"><span>変動</span>${sg(pl)}</div>
-      <div class="hl"><span>IPO</span>${sg(ipo)}</div><div class="hl"><span>分売</span>${sg(bun)}</div>`:wait}</div>
+      <div class="hl"><span>IPO</span>${sg(ipo)}</div><div class="hl"><span>分売</span>${sg(bun)}</div>${atFmt(Object.values(S.cash||{}).map(c=>c&&c.at).filter(Boolean).sort()[0])}`:wait}</div>
     <div class="glass ht tap" onclick="go('fx')"><div class="hk"><i style="background:#5FD39A"></i>FX${fr?'':'<span class="tg2">練習</span>'}<span class="go" style="margin-left:auto">›</span></div><div class="hs">残高</div>
       <div class="hv ${fr?'':'mu'}">${yen(fxIn+(fr?fx:0))}円</div>
       <div class="hl"><span>入金額</span>${yen(fxIn)}円</div><div class="hl"><span>変動</span>${fr?sg(fx):`<span class="mu">${pm(fx)}</span>`}</div>${fr?'':'<div class="hs">練習なので合計に入れない</div>'}</div>
@@ -946,7 +951,7 @@ function acctDetail(b){const au=AUTO.includes(b),st=acctSt(b),p=acctPlan(b),c=ac
   return `<div class="card glass set" style="margin-top:4px">
    <div class="row"><div><div class="t">状況</div><div class="s">${{本番:'毎晩21時に自動で申し込んでいます。',試運転中:'自動の申込を試しています。<br>問題なければ本番に加えます。',開設済み:'口座はできています。<br>自動の申込はこれから対応します。',申込済み:'口座の開設を待っています。',やめた:'この口座は使いません。'}[st]||''}</div></div><span class="tag ${ST_TAG[st]||'n'}">${esc(st)}</span></div>
    <div class="row"><div><div class="t">入金予定</div><div class="s">抽選の時に口座に入れておく金額です。</div></div><b>${p==null?'—':p?yen(p)+'円':'不要'}</b></div>
-   ${c!=null?`<div class="row"><div><div class="t">今の口座のお金</div><div class="s">毎晩21時の確認で更新します。</div></div><b>${yen(c)}円</b></div>`:''}</div>
+   ${c!=null?`<div class="row"><div><div class="t">今の口座のお金</div><div class="s">毎日12時と21時の確認で更新します。</div></div><b>${yen(c)}円</b></div>`:''}</div>
    <div class="card glass set acrow" data-b="${b}" style="margin-top:12px">
    <div class="row"><div><div class="t">${au?'取り扱う':'口座あり'}</div><div class="s">${au?'オフにすると、次の自動処理から申込などを止めます。':'自動の申込はまだ対応していません。<br>オンにすると、入金額が合計に入ります。'}</div></div>
     <button class="sw ${acctOn(b)?'on':''}" aria-label="${b}" onclick="acctSave('${b}',{on:!this.classList.contains('on')},this)"></button></div>
