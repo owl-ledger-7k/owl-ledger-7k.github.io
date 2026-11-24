@@ -1119,7 +1119,7 @@ let NOPEN=false,NPREF={};try{NPREF=JSON.parse(store.get('fk_npref')||'{}')}catch
 async function setPref(k,on){
   NPREF[k]=on;syncSet();
   try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'pref',key:KEY,sess:SESS,cat:k,on})}).then(r=>r.json());
-    if(!r.ok)throw 0;NPREF=r.pref||NPREF;store.set('fk_npref',JSON.stringify(NPREF));toast(on?'オンにしました':'オフにしました')}
+    if(!r.ok)throw 0;store.set('fk_npref',JSON.stringify(NPREF));toast(on?'オンにしました':'オフにしました')}
   catch(_){NPREF[k]=!on;syncSet();toast('変えられませんでした')}
 }
 // 設定は、押すと中の画面に入る形（iPhoneの設定アプリのように右から開いて「‹ 戻る」で戻る）
@@ -1196,19 +1196,21 @@ async function rekey(){
   }catch(_){toast('作り直せませんでした')}
 }
 async function bellOff(){
+  BELL=false;syncSet();
   try{const r=swReg||await navigator.serviceWorker.getRegistration();const sub=r&&await r.pushManager.getSubscription();if(sub)await sub.unsubscribe();toast('通知をオフにしました')}catch(_){toast('オフにできませんでした')}
   bellState();
 }
 async function bellOn(){
   const sa=window.navigator.standalone||matchMedia('(display-mode: standalone)').matches;
   if(!('PushManager' in window)||!sa){toast('ホーム画面に追加したフクリから押してください');return}
+  BELL=true;syncSet();
   try{
-    if(await Notification.requestPermission()!=='granted'){toast('通知が許可されませんでした');return}
+    if(await Notification.requestPermission()!=='granted'){BELL=false;syncSet();toast('通知が許可されませんでした');return}
     const r=swReg||await navigator.serviceWorker.ready;let sub=await r.pushManager.getSubscription();
     if(!sub)sub=await r.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:b64(VAPID)});
     const res=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'sub',key:KEY,sess:SESS,sub:sub.toJSON()})}).then(r=>r.json());
     if(!res.ok)throw 0;toast('通知がつながりました');bellState();
-  }catch(e){toast('通知の登録に失敗しました')}
+  }catch(e){BELL=false;syncSet();toast('通知の登録に失敗しました')}
 }
 {const q=new URLSearchParams(location.search).get('tab');if(q)store.set('fk_tab',q),TAB=q}
 
