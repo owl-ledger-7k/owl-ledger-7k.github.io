@@ -616,7 +616,7 @@ LSwipe.remove=(box,then)=>{if(LSwipe.cur&&LSwipe.cur.box===box)LSwipe.cur=null;c
 </script>
 <script>LGBar(document.getElementById('nav'),{sel:'button',acc:'#A78BFA'})</script>
 <script>
-const VERSION='63';
+const VERSION='64';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -1237,7 +1237,34 @@ function fixNav(){const n=$('#nav');if(!n)return;window.scrollTo(0,0);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)[0,80,300,800].forEach(t=>setTimeout(fixNav,t))});
 if(window.visualViewport)visualViewport.addEventListener('resize',fixNav);
 fixNav();
-function ptrDone(){}
+let PTR={y:0,d:0,on:false,busy:false};
+(function(){
+  const st=document.createElement('style');
+  st.textContent='#ptr{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 8px);width:34px;height:34px;margin-left:-17px;z-index:5;border-radius:50%;background:rgba(40,40,46,.92);box-shadow:0 4px 16px rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transform:translateY(-60px)}#ptr svg{width:20px;height:20px;transform-origin:50% 50%}#ptr.spin svg{animation:ptrsp .8s linear infinite}@keyframes ptrsp{to{transform:rotate(360deg)}}';
+  document.head.appendChild(st);
+  const el=document.createElement('div');el.id='ptr';
+  el.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path id="ptra" d="M12 3a9 9 0 1 1-8.5 6" stroke-dasharray="56" stroke-dashoffset="56"/></svg>';
+  document.body.appendChild(el);
+  const m=$('#main'),A=$('#ptra'),TH=72;
+  const draw=d=>{const p=Math.min(d/TH,1);el.style.opacity=Math.min(d/30,1);el.style.transform='translateY('+(Math.min(d,TH*1.3)*.62-60)+'px)';A.style.strokeDashoffset=56-56*p;el.firstElementChild.style.transform='rotate('+(p*270)+'deg)'};
+  m.addEventListener('touchstart',e=>{if(PTR.busy||m.scrollTop>0||document.body.classList.contains('lock')||!SESS)return;PTR.y=e.touches[0].clientY;PTR.on=true;PTR.d=0},{passive:true});
+  m.addEventListener('touchmove',e=>{if(!PTR.on)return;if(m.scrollTop>0){PTR.on=false;draw(0);return}const d=e.touches[0].clientY-PTR.y;if(d<=0){PTR.d=0;draw(0);return}PTR.d=d;draw(d)},{passive:true});
+  const end=()=>{if(!PTR.on)return;PTR.on=false;if(PTR.d>=TH)ptrRun();else{el.style.transition='all .25s';draw(0);setTimeout(()=>el.style.transition='',260)}};
+  m.addEventListener('touchend',end);m.addEventListener('touchcancel',end);
+  window.ptrEl=el;window.ptrDraw=draw;
+})();
+async function ptrRun(){
+  if(PTR.busy)return;PTR.busy=true;const el=window.ptrEl;
+  el.style.transition='all .2s';el.style.opacity=1;el.style.transform='translateY(14px)';el.classList.add('spin');
+  let ok=false;
+  try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'refresh',key:KEY,sess:SESS})}).then(r=>r.json());ok=!!r.ok}catch(_){}
+  await load(false);
+  toast(ok?'最新にしました。証券・銀行の残高は10〜15分後に更新されます（完了したら通知します）':'更新の依頼に失敗しました');
+}
+function ptrDone(){
+  if(!PTR.busy)return;const el=window.ptrEl;
+  setTimeout(()=>{el.classList.remove('spin');el.style.transition='all .3s';el.style.opacity=0;el.style.transform='translateY(-60px)';setTimeout(()=>{el.style.transition='';PTR.busy=false},320)},700);
+}
 
 // ---------- 通知（フクリのアプリに届く） ----------
 let swReg=null,BELL=false;
