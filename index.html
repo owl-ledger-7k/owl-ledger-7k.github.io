@@ -561,7 +561,7 @@ function LGBar(nav,o){
 <!-- LGBAR:END -->
 <script>LGBar(document.getElementById('nav'),{sel:'button',acc:'#A78BFA'})</script>
 <script>
-const VERSION='60';
+const VERSION='61';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -708,6 +708,38 @@ function stLabel(v){
   if(v.a==='申込済')return['抽選待ち','now'];
   return[v.a||'—','ng'];
 }
+let NMODE='g';
+function nisaFmt(t){const m=String(t).match(/(\d+)-(\d+)-(\d+)T(\d+:\d+)/);return m?`${+m[2]}/${+m[3]} ${m[4]}`:''}
+function showNisa(){
+  const H=((((D&&D.status)||{}).nisa||{}).hist||[]).filter(x=>x&&x.v!=null);
+  if(H.length<2){sheet('NISAの推移','<div class="ts" style="padding:10px 0">記録がたまるとグラフが出ます。</div>');return}
+  sheet('NISAの推移',`<div style="display:flex;gap:8px;margin:2px 0 12px"><button id="nb-g" class="btn s" onclick="nisaMode('g')">増えた額</button><button id="nb-v" class="btn s" onclick="nisaMode('v')">評価額</button></div>
+    <div id="nv" style="font-size:30px;font-weight:800;font-variant-numeric:tabular-nums"></div><div id="nd" class="ts" style="padding:2px 0 8px"></div>
+    <svg id="ns" style="width:100%;height:190px;touch-action:none;display:block"></svg>
+    <div id="nn" class="ts" style="padding-top:10px;font-size:12px;color:var(--sub)"></div>`);
+  nisaDraw()}
+function nisaMode(m){NMODE=m;nisaDraw()}
+function nisaDraw(){
+  const H=((((D&&D.status)||{}).nisa||{}).hist||[]).filter(x=>x&&x.v!=null),k=NMODE,svg=$('#ns');if(!svg)return;
+  ['g','v'].forEach(x=>{const b=$('#nb-'+x);if(b)b.className='btn s'+(x===k?'':' sub')});
+  const w=svg.clientWidth||340,h=190,pad=14;svg.setAttribute('viewBox',`0 0 ${w} ${h}`);
+  const vs=H.map(p=>+p[k]),mx=Math.max(...vs),mn=Math.min(...vs),span=(mx-mn)||1,lo=mn-span*.12,hi=mx+span*.12,rg=hi-lo;
+  const X=i=>pad+(w-pad*2)*i/(H.length-1),Y=v=>pad+(h-pad*2)*(1-(v-lo)/rg);
+  const first=vs[0],lastV=vs[vs.length-1],up=lastV>=first,col=up?'var(--up)':'var(--dn)',g1=up?'#3ddc97':'#ff6b5e';
+  const d=H.map((p,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(+p[k]).toFixed(1)).join(' ');
+  svg.innerHTML=`<defs><linearGradient id="ng" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${g1}" stop-opacity=".35"/><stop offset="1" stop-color="${g1}" stop-opacity="0"/></linearGradient></defs>
+    <path d="${d} L${X(H.length-1)} ${h} L${X(0)} ${h} Z" fill="url(#ng)"/>
+    <path d="${d}" fill="none" stroke="${col}" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+    <line id="nx" y1="0" y2="${h}" stroke="var(--sub)" stroke-width="1" opacity="0"/><circle id="nc" r="6" fill="${col}" stroke="#fff" stroke-width="2.5" opacity="0"/>`;
+  const txt=i=>{const p=H[i];return k==='g'?`<span class="${p.g>=0?'up':'dn'}">${pm(p.g)}</span>`:yen(p.v)+'<small>円</small>'};
+  const show=i=>{$('#nv').innerHTML=txt(i);$('#nd').textContent=nisaFmt(H[i].t);const x=$('#nx'),c=$('#nc');x.setAttribute('x1',X(i));x.setAttribute('x2',X(i));x.setAttribute('opacity',.5);c.setAttribute('cx',X(i));c.setAttribute('cy',Y(+H[i][k]));c.setAttribute('opacity',1)};
+  const reset=()=>{$('#nv').innerHTML=txt(H.length-1);$('#nd').textContent=nisaFmt(H[H.length-1].t)+' 時点。横になぞると、その時点の数字が出ます。';$('#nx').setAttribute('opacity',0);$('#nc').setAttribute('opacity',0)};
+  $('#nn').innerHTML=k==='g'?'売った分の利益も含めた、始めてからの増えた額です。':'評価額は、売った分だけ減ります。値動きを見るときは「増えた額」を見てください。';
+  reset();
+  let last=-1;const mv=e=>{const r=svg.getBoundingClientRect(),cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
+    const i=Math.max(0,Math.min(H.length-1,Math.round((cx/r.width*w-pad)/((w-pad*2)/(H.length-1)))));if(i!==last){last=i;show(i)}};
+  svg.ontouchstart=e=>{e.stopPropagation();mv(e)};svg.ontouchmove=e=>{e.stopPropagation();if(e.cancelable)e.preventDefault();mv(e)};svg.ontouchend=()=>{last=-1;reset()};
+  svg.onmousemove=mv;svg.onmouseleave=()=>{last=-1;reset()}}
 function showWait(){
   const by={};WAIT.forEach(w=>{(by[w.code]=by[w.code]||{name:(w.bun?'【分売】':'')+(w.name||w.code),code:w.code,b:[]}).b.push(w.b)});
   const it=Object.values(by).map(x=>{const o=KDD.ipo.find(i=>i.code===x.code)||{};return{...x,d:o.data15||o.data9||'',bd:bunDay(x.code)}}).sort((a,b)=>String(a.d).localeCompare(String(b.d)));
@@ -773,7 +805,7 @@ function renderTodo(){
    <div class="hg">
     <div class="glass ht"><div class="hk"><i style="background:#d14b4b"></i>楽天銀行</div><div class="hs">残高</div>
       ${bk!=null?`<div class="hv">${yen(bk)}円</div><div class="hs">増やせた額には入れない</div>`:wait}</div>
-    <div class="glass ht"><div class="hk"><i style="background:#7cc7ff"></i>NISA</div><div class="hs">今入っている金額</div>
+    <div class="glass ht tap" onclick="showNisa()"><div class="hk"><i style="background:#7cc7ff"></i>NISA<span class="go" style="margin-left:auto">›</span></div><div class="hs">今入っている金額</div>
       ${NI?`<div class="hv">${nNow!=null?yen(nNow)+'円':'—'}</div>
       <div class="hl"><span>今の分で増えた</span>${nUr!=null?sg(nUr):'—'}</div>
       <div class="hl"><span>累計で増えた</span>${nG!=null?sg(nG):'—'}</div>
