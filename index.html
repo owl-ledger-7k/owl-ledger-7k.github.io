@@ -616,7 +616,7 @@ LSwipe.remove=(box,then)=>{if(LSwipe.cur&&LSwipe.cur.box===box)LSwipe.cur=null;c
 </script>
 <script>LGBar(document.getElementById('nav'),{sel:'button',acc:'#A78BFA'})</script>
 <script>
-const VERSION='65';
+const VERSION='66';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -1240,7 +1240,7 @@ fixNav();
 let PTR={y:0,d:0,on:false,busy:false};
 (function(){
   const st=document.createElement('style');
-  st.textContent='#ptr{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 6px);width:30px;height:30px;margin-left:-15px;z-index:3;opacity:0;pointer-events:none}#ptr svg{width:30px;height:30px;transform-origin:50% 50%}#ptr.spin svg{animation:ptrsp .8s linear infinite}@keyframes ptrsp{to{transform:rotate(360deg)}}main.ptrm,.topbtn.ptrm{transition:transform .38s cubic-bezier(.2,.9,.25,1)}#ptr.ptrm{transition:opacity .25s,transform .38s cubic-bezier(.2,.9,.25,1)}';
+  st.textContent='#ptr{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 6px);width:30px;height:30px;margin-left:-15px;z-index:3;opacity:0;pointer-events:none}#ptr svg{width:30px;height:30px;transform-origin:50% 50%}#ptr.spin svg{animation:ptrsp .8s linear infinite}@keyframes ptrsp{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}main.ptrm,.topbtn.ptrm{transition:transform .38s cubic-bezier(.2,.9,.25,1)}#ptr.ptrm{transition:opacity .25s,transform .38s cubic-bezier(.2,.9,.25,1)}';
   document.head.appendChild(st);
   const el=document.createElement('div');el.id='ptr';
   el.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path id="ptra" d="M12 3a9 9 0 1 1-8.5 6" stroke-dasharray="56" stroke-dashoffset="56"/></svg>';
@@ -1258,7 +1258,7 @@ let PTR={y:0,d:0,on:false,busy:false};
 })();
 async function ptrRun(){
   if(PTR.busy)return;PTR.busy=true;const el=window.ptrEl;
-  window.ptrAnim(true);window.ptrSetOff(window.ptrHold);el.style.opacity=1;el.style.transform='translateY('+(window.ptrHold*.5-21)+'px)';el.classList.add('spin');
+  window.ptrAnim(true);window.ptrSetOff(window.ptrHold);el.style.opacity=1;el.style.transform='translateY('+(window.ptrHold*.5-21)+'px)';el.firstElementChild.style.transform='';document.getElementById('ptra').style.strokeDashoffset=12;el.classList.add('spin');
   let ok=false;
   try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'refresh',key:KEY,sess:SESS})}).then(r=>r.json());ok=!!r.ok}catch(_){}
   await load(false);
