@@ -616,7 +616,7 @@ LSwipe.remove=(box,then)=>{if(LSwipe.cur&&LSwipe.cur.box===box)LSwipe.cur=null;c
 </script>
 <script>LGBar(document.getElementById('nav'),{sel:'button',acc:'#A78BFA'})</script>
 <script>
-const VERSION='66';
+const VERSION='67';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -747,6 +747,8 @@ function todoItems(rows){
   const mine={};rows.filter(r=>r[4]==='申込済'&&!r[6]&&!r[8]).forEach(r=>{(mine[r[1]]=mine[r[1]]||[]).push(r[0])});
   KDD.ipo.forEach(o=>{if(!mine[o.code])return;const d=Pd(o.data15||o.data9);if(!d)return;const n=Math.round((d-t0)/864e5);
     if(n>=0&&n<=3)it.push({t:`${n===0?'今日':n===1?'明日':(d.getMonth()+1)+'/'+d.getDate()} 18時に抽選`,s:`${o.data1||o.code}（${mine[o.code].join('・')}）。当選したら自動で購入まで進めます。`})});
+  // お知らせ（2026/11/25）：Macのフクリが送ったプッシュ通知の記録。新しい順。見ただけでは消えない
+  (S.news||[]).slice().reverse().forEach(x=>it.push({n:1,k:'n:'+x.id,w:x.u?1:0,t:String(x.t||'').replace(/^フクリ[：:]?/,'')||'お知らせ',s:String(x.b||''),at:x.at}));
   return it;
 }
 async function resume(b,jp){
@@ -846,7 +848,7 @@ function atFmt(s){if(!s)return'';const d=new Date(String(s).replace(' ','T'));if
   return `<div class="hat${t-d>13*36e5?' old':''}">${day} ${hm} 時点</div>`}
 function renderTodo(){
   const el=$('#p-todo');const rows=(D&&D.ipo)||[];
-  const all=todoItems(rows);TODO=all;const it=all.filter(x=>!HID.includes(x.t)&&!DEL.includes(x.t));const n=it.filter(x=>x.w).length;appBadge(n);
+  const all=todoItems(rows);TODO=all;const it=all.filter(vis);const n=it.filter(x=>x.w).length;appBadge(n);
   // 2026/11/13 ホームをA案に：全部の合計・増やせた額＋4枚のカード（IPO・分売／NISA／FX／楽天銀行）
   const A=acct(),set=A.filter(a=>a.inn!=null),inn=set.reduce((a,x)=>a+x.inn,0),pl=set.reduce((a,x)=>a+x.pl,0);
   const H=(BK().hist||[]).filter(h=>h.y!=null),ipo=H.filter(h=>(h.k||'IPO')==='IPO').reduce((a,h)=>a+(+h.y||0),0),bun=H.filter(h=>h.k==='分売').reduce((a,h)=>a+(+h.y||0),0);
@@ -899,20 +901,25 @@ let TODO=[];
 let HID=[];try{HID=JSON.parse(store.get('fk_hid')||'[]')}catch(_){}
 let DEL=[];try{DEL=JSON.parse(store.get('fk_del')||'[]')}catch(_){}
 function saveHid(){store.set('fk_hid',JSON.stringify(HID));store.set('fk_del',JSON.stringify(DEL));renderTodo()}
-const vis=x=>!HID.includes(x.t)&&!DEL.includes(x.t),hidd=x=>HID.includes(x.t)&&!DEL.includes(x.t);
+const KY=x=>x.k||x.t,vis=x=>!HID.includes(KY(x))&&!DEL.includes(KY(x)),hidd=x=>HID.includes(KY(x))&&!DEL.includes(KY(x));
+const nwAt=t=>{const m=String(t||'').match(/\d+-(\d+)-(\d+)T(\d+:\d+)/);return m?`${+m[1]}/${+m[2]} ${m[3]}`:''};
 function showTodo(){
-  const it=TODO.filter(vis),hn=TODO.filter(hidd).length;
-  sheet('今やること',(it.length?`<div class="todo" id="todol">${it.map(x=>`<div class="lsw" data-k="${esc(x.t)}"><div class="lsw-row"><div class="it ${x.w?'w':''}"><div><div class="tt">${esc(x.t)}</div><div class="ts">${brk(x.s)}</div></div>${x.b||''}</div></div></div>`).join('')}</div>
-    <div class="swhint">左にスワイプすると、非表示・削除ができます。</div>`
+  const V=TODO.filter(vis),it=V.filter(x=>!x.n),nw=V.filter(x=>x.n),hn=TODO.filter(hidd).length;
+  const row=x=>`<div class="lsw" data-k="${esc(KY(x))}"><div class="lsw-row"><div class="it ${x.w?'w':''}"><div><div class="tt">${esc(x.t)}</div>${x.at?`<div class="ts" style="opacity:.7">${nwAt(x.at)}</div>`:''}<div class="ts">${brk(x.s)}</div></div>${x.b||''}</div></div></div>`;
+  sheet('今やること',(it.length?`<div class="todo" id="todol">${it.map(row).join('')}</div>`
     :'<div class="ts" style="padding:10px 0">今やることはありません。<br>全部自動で進んでいます。</div>')
+    +(nw.length?`<div class="cap" style="margin:16px 0 6px;font-weight:700">お知らせ</div><div class="todo" id="newsl">${nw.map(row).join('')}</div>`:'')
+    +(it.length||nw.length?'<div class="swhint">左にスワイプすると、非表示・削除ができます。</div>':'')
     +(hn?`<button class="hidlink" onclick="showHid()">非表示にした通知（${hn}件）</button>`:''));
-  LSwipe($('#todol'),{acts:[
+  const acts={acts:[
     {t:'非表示',c:'g',fn:(k,box)=>LSwipe.remove(box,()=>{if(!HID.includes(k))HID.push(k);saveHid();showTodo();toast('非表示にしました')})},
-    {t:'削除',c:'r',fn:(k,box)=>LSwipe.remove(box,()=>{if(!DEL.includes(k))DEL.push(k);HID=HID.filter(x=>x!==k);saveHid();showTodo();toast('削除しました')})}]});
+    {t:'削除',c:'r',fn:(k,box)=>LSwipe.remove(box,()=>{if(!DEL.includes(k))DEL.push(k);HID=HID.filter(x=>x!==k);saveHid();showTodo();toast('削除しました')})}]};
+  if($('#todol'))LSwipe($('#todol'),acts);
+  if($('#newsl'))LSwipe($('#newsl'),acts);
 }
 function showHid(){
   const it=TODO.filter(hidd);
-  sheet('非表示にした通知',it.length?`<div class="todo" id="hidl">${it.map(x=>`<div class="lsw" data-k="${esc(x.t)}"><div class="lsw-row"><div class="it"><div><div class="tt" style="color:var(--sub)">${esc(x.t)}</div><div class="ts">${brk(x.s)}</div></div><button class="btn s sub" data-t="${esc(x.t)}" onclick="unhide(this.dataset.t)">戻す</button></div></div></div>`).join('')}</div>
+  sheet('非表示にした通知',it.length?`<div class="todo" id="hidl">${it.map(x=>`<div class="lsw" data-k="${esc(KY(x))}"><div class="lsw-row"><div class="it"><div><div class="tt" style="color:var(--sub)">${esc(x.t)}</div>${x.at?`<div class="ts" style="opacity:.7">${nwAt(x.at)}</div>`:''}<div class="ts">${brk(x.s)}</div></div><button class="btn s sub" data-t="${esc(KY(x))}" onclick="unhide(this.dataset.t)">戻す</button></div></div></div>`).join('')}</div>
     <div class="swhint">左にスワイプすると削除できます。</div>
     <button class="hidlink" onclick="showTodo()">今やることに戻る</button>`
     :'<div class="ts" style="padding:10px 0">非表示にした通知はありません。</div><button class="hidlink" onclick="showTodo()">今やることに戻る</button>');
