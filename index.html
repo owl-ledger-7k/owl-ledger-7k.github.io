@@ -513,6 +513,32 @@ nav.lg.lg-drag .lg-pill{opacity:0!important}
 .lg-mi svg{width:24px;height:24px;margin:0}
 .lg-mi.lg-hot{color:var(--lg-acc)}
 .lg-mi .badge,.lg-mi [class*=badge]{display:none!important}
+/* 2026/11/26 IPO・分売：口座ごとのお金と保有株（A案） */
+.kzt{padding:12px 14px 8px;border-bottom:1px solid var(--line)}.kzt .l{font-size:12px;color:var(--sub)}
+.kzt .v{font-size:28px;font-weight:600;letter-spacing:-.01em;font-variant-numeric:tabular-nums;margin-top:2px}.kzt .v small{font-size:15px;margin-right:2px}
+.kzt .s{font-size:11.5px;color:var(--mute);margin-top:2px}
+.kzl{margin:0 16px;padding:0}
+.kr{display:flex;align-items:center;gap:8px;padding:9px 14px;border-top:1px solid var(--line);width:100%;background:none;border-left:0;border-right:0;border-bottom:0;color:var(--ink);font:inherit;text-align:left}
+.kzl>.kzt+.kr{border-top:0}
+.kr .ch{width:12px;color:var(--mute);font-size:11px;transition:transform .2s;flex:none;text-align:center}
+.kr.op .ch{transform:rotate(90deg)}
+.kr .n{flex:1;font-weight:600;font-size:14px;min-width:0}
+.kr .a{text-align:right;font-variant-numeric:tabular-nums}.kr .a b{font-size:15px;font-weight:600}
+.kr .a span{display:block;font-size:11.5px;color:var(--mute)}
+.kr.z{color:var(--mute)}.kr.z .n{font-weight:500}.kr .zn{font-size:11.5px;color:var(--mute);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
+.kh{display:none;background:var(--glass2);margin:0 10px 8px;border-radius:10px;padding:6px 12px}
+.kh.op{display:block;animation:rise .3s cubic-bezier(.2,.8,.2,1) both}
+.khr{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;font-size:13px}
+.khr+.khr{border-top:1px solid var(--line)}
+.khr .nm2{font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.khr .r{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}.khr .r span{display:block;font-size:11px;color:var(--mute)}
+.kr .er{font-size:11.5px;color:var(--mute)}
+.fl{margin:10px 16px 0;padding:0}
+.flh{display:flex;justify-content:space-between;align-items:center;width:100%;padding:12px 14px;border:0;border-top:1px solid var(--line);background:none;color:var(--ink);font:600 14px/1.2 inherit;text-align:left}
+.fl>.flh:first-child{border-top:0}
+.flh em{font-style:normal;font-weight:400;color:var(--mute);margin-left:6px;font-size:13px}
+.flh i{font-style:normal;color:var(--mute);transition:transform .2s}.flh.op i{transform:rotate(90deg)}
+.flb{display:none;padding:0 14px 6px}.flb.op{display:block;animation:rise .3s cubic-bezier(.2,.8,.2,1) both}
 </style>
 <script>
 /* LGBar：nav＝下のタブ、sel＝項目、acc＝選択色。項目の選択状態は各アプリの「.on」をそのまま使う */
@@ -616,7 +642,7 @@ LSwipe.remove=(box,then)=>{if(LSwipe.cur&&LSwipe.cur.box===box)LSwipe.cur=null;c
 </script>
 <script>LGBar(document.getElementById('nav'),{sel:'button',acc:'#A78BFA'})</script>
 <script>
-const VERSION='67';
+const VERSION='68';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -700,6 +726,35 @@ function ipoItem(x){const bun=x.kind==='分売';const J=bun?{}:judge(x.code);con
   const day=bun?(bunDay(x.code)?' ・分売 '+bunDay(x.code):''):(o.data15?' ・抽選 '+md(o.data15):'');
   const chips=Object.entries(x.br).sort((a,b)=>BRS.indexOf(a[0])-BRS.indexOf(b[0])).map(([b,v])=>brRow(b,v,bun)).join('');
   return `<div class="ir"><div class="in"><span class="nm">${esc(x.name||x.code)}</span>${tag}<span class="cd">${esc(x.code)}${day}</span></div><div class="mini">${chips}</div></div>`}
+// ---------- 2026/11/26 口座ごとのお金と保有株（管理表「口座まとめ」「保有株」。NISAの株は出さない） ----------
+let KOPEN={};
+function kzTog(k,b){KOPEN[k]=!KOPEN[k];b.classList.toggle('op',KOPEN[k]);const n=b.nextElementSibling;if(n)n.classList.toggle('op',KOPEN[k])}
+function kouzaHTML(){
+  const kz=(D&&D.kz)||{},sum=kz.sum||[],hold=kz.hold||[];
+  if(!sum.length)return `<div class="sec"><span>口座のお金</span></div><div class="glass kzt"><div class="s">まだ読み取りの記録がありません。<br>12時と21時に自動で読みます。</div></div>`;
+  const N=v=>{if(v===''||v==null)return null;const x=parseFloat(String(v).replace(/[,円¥]/g,''));return isNaN(x)?null:x};
+  const Y=v=>'¥'+Math.round(v).toLocaleString('ja-JP');
+  const cs=sum.filter(r=>r[0]&&r[0]!=='楽天銀行'&&!/^合計/.test(String(r[0])));
+  const hs=hold.filter(r=>r[0]&&String(r[1])!=='NISA');
+  const tD=s=>{const d=new Date(String(s).replace(' ','T'));return isNaN(d)?null:d};
+  let total=0,last=null;
+  const rows=cs.map(r=>{const c=N(r[1]),st=N(r[2]),t=N(r[3]);const my=hs.filter(h=>h[0]===r[0]);
+    const stk=my.reduce((a,h)=>a+(N(h[7])||0),0);const c2=t!=null&&st!=null?t-st:c;const tot=c2!=null||stk?(c2||0)+stk:null;total+=tot||0;
+    const d=tD(r[5]);if(d&&(!last||d>last))last=d;return{n:String(r[0]),c:c2,stk,tot,my,err:String(r[6]||'')}});
+  const show=rows.filter(x=>x.tot==null||x.tot>0||x.my.length),zero=rows.filter(x=>!(x.tot==null||x.tot>0||x.my.length));
+  const at=last?`${last.getMonth()+1}/${last.getDate()} ${last.getHours()}:${String(last.getMinutes()).padStart(2,'0')}に読んだ`:'';
+  const cnt=rows.length;
+  let h=`<div class="sec"><span>口座のお金</span><span>${esc(at)}</span></div>
+  <div class="glass kzl"><div class="kzt"><div class="l">${cnt}社の合計（お金＋株）</div><div class="v"><small>¥</small>${Math.round(total).toLocaleString('ja-JP')}</div></div>`;
+  show.forEach(x=>{const k='k'+x.n,op=!!KOPEN[k],has=x.my.length>0;
+    const amt=x.c!=null?`<b>${Y(x.c)}</b>${x.stk?`<span>株 ${Y(x.stk)}</span>`:''}`:`<b style="color:var(--mute)">—</b><span>${x.stk?'株 '+Y(x.stk)+'・':''}${esc(x.err||'お金はまだ読めていません')}</span>`;
+    h+=has?`<button class="kr${op?' op':''}" onclick="kzTog('${esc(k)}',this)"><span class="ch">›</span><span class="n">${esc(x.n)}</span><span class="a">${amt}</span></button>
+      <div class="kh${op?' op':''}">${x.my.map(m=>{const pl=N(m[8]),q=N(m[4]),c0=N(m[5]),p0=N(m[6]);
+        return `<div class="khr"><span class="nm2">${esc(m[3]||m[2])}</span><span class="r">${q!=null?q.toLocaleString('ja-JP')+'株 ':''}${Y(N(m[7])||0)}${pl!=null?` <b class="${pl>=0?'up':'dn'}">${pl>=0?'+':'−'}¥${Math.abs(Math.round(pl)).toLocaleString('ja-JP')}</b>`:''}${c0!=null&&p0!=null?`<span>${c0.toLocaleString('ja-JP')}円→${p0.toLocaleString('ja-JP')}円</span>`:''}</span></div>`}).join('')}</div>`
+      :`<div class="kr"><span class="ch"></span><span class="n">${esc(x.n)}</span><span class="a">${amt}</span></div>`});
+  if(zero.length)h+=`<div class="kr z"><span class="ch"></span><span class="n">0円の口座 ${zero.length}社</span><span class="zn">${esc(zero.map(x=>x.n).join('・'))}</span></div>`;
+  return h+`</div>`;
+}
 function renderIPO(){
   const el=$('#p-ipo');const rows=(D&&D.ipo)||[];
   const g={};rows.forEach(r=>{const[b,code,name,kind,a,at,l,lt,bu,bt,m]=r;(g[code]=g[code]||{code,name,kind,br:{}}).br[b]={a,at,l,lt,bu,bt,m};if(name)g[code].name=name});
@@ -712,16 +767,15 @@ function renderIPO(){
   let h=BACK+`<div class="hd"><div class="row"><div><div class="eyebrow">自動化IPO・分売</div><h1>IPO・分売</h1></div>
      <button class="pill" onclick="showWait()"><b>${WAIT.length}</b>件 結果待ち<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>
    <div class="cap">${run[0]?`前回の自動実行：${esc(run[0].slice(5,16).replace('-','/').replace('T',' '))}（${esc(run[1])}）`:'まだ記録がありません。'}</div></div>`;
-  if(!list.length)h+=`<div class="empty">まだ申込の記録がありません。<br>毎日21時に自動で申し込みます。</div>`;
-  else{
-    list.sort((a,b)=>stage(b)-stage(a));
-    const iL=list.filter(x=>x.kind!=='分売'),bL=list.filter(x=>x.kind==='分売');
-    if(iL.length)h+=`<div class="sec"><span>IPO</span><span>${iL.length}銘柄</span></div><div class="glass trl">${iL.map(ipoItem).join('')}</div>`;
-    if(bL.length)h+=`<div class="sec"><span>分売</span><span>${bL.length}銘柄</span></div><div class="glass trl">${bL.map(ipoItem).join('')}</div>`;
-  }
+  h+=kouzaHTML();
+  list.sort((a,b)=>stage(b)-stage(a));
+  const iL=list.filter(x=>x.kind!=='分売'),bL=list.filter(x=>x.kind==='分売');
+  const FL=(k,t,c,body)=>`<button class="flh${KOPEN['f'+k]?' op':''}" onclick="kzTog('f${k}',this)"><span>${t}<em>${c}</em></span><i>›</i></button><div class="flb${KOPEN['f'+k]?' op':''}">${body}</div>`;
+  h+=`<div class="glass fl">${FL('i','IPO',iL.length+'銘柄',iL.length?iL.map(ipoItem).join(''):'<div class="er" style="color:var(--mute);font-size:12.5px;padding:6px 0">まだ申込の記録がありません。</div>')}${FL('b','分売',bL.length+'銘柄',bL.length?bL.map(ipoItem).join(''):'<div class="er" style="color:var(--mute);font-size:12.5px;padding:6px 0">まだ申込の記録がありません。</div>')}`;
   const byM={};rows.filter(r=>r[8]==='購入済').forEach(r=>{const g=judge(r[1]).gain;if(g==null)return;const m=String(r[9]||'').slice(0,7)||'不明';byM[m]=(byM[m]||0)+g});
   const ms=Object.keys(byM).sort().reverse();
-  if(ms.length){h+=`<div class="sec"><span>月ごとの利益</span><span>初値で売った場合</span></div><div class="glass card">${ms.map(m=>`<div class="row" style="display:flex;justify-content:space-between;padding:6px 0"><span>${esc(m.replace('-','年')+(m.includes('-')?'月':''))}</span><b class="${byM[m]>=0?'up':'dn'}">${pm(byM[m])}</b></div>`).join('')}<div class="row" style="display:flex;justify-content:space-between;padding:8px 0 0;border-top:1px solid var(--line);margin-top:4px"><span>合計</span><b class="${gainAll>=0?'up':'dn'}">${pm(ms.reduce((a,m)=>a+byM[m],0))}</b></div></div>`}
+  if(ms.length)h+=FL('m','月ごとの利益','初値で売った場合',`${ms.map(m=>`<div class="row" style="display:flex;justify-content:space-between;padding:6px 0"><span>${esc(m.replace('-','年')+(m.includes('-')?'月':''))}</span><b class="${byM[m]>=0?'up':'dn'}">${pm(byM[m])}</b></div>`).join('')}<div class="row" style="display:flex;justify-content:space-between;padding:8px 0 0;border-top:1px solid var(--line);margin-top:4px"><span>合計</span><b class="${gainAll>=0?'up':'dn'}">${pm(ms.reduce((a,m)=>a+byM[m],0))}</b></div>`);
+  h+=`</div>`;
   h+=`<div class="foot">SBI・楽天は全部のIPOに申し込み、当選したら「得」の予想のときだけ購入します。<br>DMMは「得」の予想だけ申し込みます。<br>分売は東証のものだけ、楽天・SBIで100株申し込みます。<br>当たったら、その日の朝に成行で売ります。</div>`;
   el.innerHTML=h;
 }
