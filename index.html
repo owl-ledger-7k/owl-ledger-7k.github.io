@@ -271,6 +271,22 @@ main{position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-s
 .page.on>*:nth-child(2){animation-delay:.04s}.page.on>*:nth-child(3){animation-delay:.08s}.page.on>*:nth-child(4){animation-delay:.12s}
 .page.on>*:nth-child(5){animation-delay:.16s}.page.on>*:nth-child(6){animation-delay:.2s}.page.on>*:nth-child(n+7){animation-delay:.24s}
 @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+/* 2026/11/26 ホーム（A案・リスト型）と株主優待タブ */
+.hhero{margin:6px 16px 0;padding:18px 20px 16px;border-radius:24px}
+.hbig{font-size:34px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-top:2px;line-height:1.15}
+.hbig .hpc{font-size:17px;font-weight:700;margin-left:10px;letter-spacing:0}
+.hsub{font-size:13px;color:var(--sub);margin-top:6px;font-variant-numeric:tabular-nums}.hsub .ar{margin:0 6px;color:var(--mute)}
+.hcap{margin:18px 22px 6px;font-weight:700;font-size:13px}
+.hlist{margin:0 16px;padding:2px 0;border-radius:22px;overflow:hidden}
+.hrw{display:flex;align-items:center;gap:10px;width:100%;padding:9px 16px;border:0;background:none;color:inherit;font:inherit;text-align:left;cursor:pointer}
+.hrw+.hrw{border-top:1px solid var(--line)}.hrw:active{background:var(--line)}
+.hrw .hn{flex:1;min-width:0;font-size:15px;font-weight:700}.hrw .hn em{font-style:normal;font-size:11.5px;color:var(--sub);font-weight:600;margin-left:6px}
+.hrw .hn small{display:block;font-size:12px;color:var(--sub);font-weight:500;margin-top:2px;font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hrw .hv2{text-align:right;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}.hrw .hv2 small{display:block;font-size:12px;font-weight:700;margin-top:2px}
+.hrw .go{color:var(--mute);font-size:18px;flex:none}
+/* 2026/11/26 点滅をやめる：表示中のページを読み直しても、動きをもう一度出さない */
+.page.calm>*,.page.calm .todo .it,.page.calm .lsw,.page.calm .hbell .badge,.page.calm .hrw{animation:none!important}
 .trl>*{animation:rise .45s cubic-bezier(.2,.8,.2,1) both}
 .trl>*:nth-child(2){animation-delay:.03s}.trl>*:nth-child(3){animation-delay:.06s}.trl>*:nth-child(4){animation-delay:.09s}.trl>*:nth-child(n+5){animation-delay:.12s}
 .btn,.pill,.sw,nav button,.chip{transition:transform .15s,background .2s,color .2s}
@@ -466,12 +482,14 @@ body[data-tab=pl] main,body[data-tab=fx] main{overflow:hidden!important}
   <section class="page on" id="p-todo"></section>
   <section class="page sub" id="p-ipo"></section>
   <section class="page sub" id="p-fx"></section>
+  <section class="page" id="p-yt"></section>
   <section class="page" id="p-pl"></section>
   <section class="page" id="p-set"></section>
 </main>
 <nav class="glass" id="nav">
   <div class="blob" id="blob"></div>
   <button data-p="todo" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/></svg>ホーム</button>
+  <button data-p="yt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12v9H4v-9"/><path d="M2 7h20v5H2z"/><path d="M12 21V7"/><path d="M12 7H7.5a2.5 2.5 0 1 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 1 0 0-5C13 2 12 7 12 7z"/></svg>優待</button>
   <button data-p="pl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>収支表</button>
   <button data-p="set"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>設定</button>
 </nav>
@@ -645,7 +663,7 @@ LSwipe.remove=(box,then)=>{if(LSwipe.cur&&LSwipe.cur.box===box)LSwipe.cur=null;c
 </script>
 <script>LGBar(document.getElementById('nav'),{sel:'button',acc:'#A78BFA'})</script>
 <script>
-const VERSION='71';
+const VERSION='72';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -690,7 +708,7 @@ async function gReturn(){
   }catch(_){toast('ログインに失敗しました')}
 }
 
-let GON=false,D=null,KDD={ipo:[],yoso:{},bun:{items:[]}},TAB=(['todo','ipo','fx','pl','set'].includes(store.get('fk_tab'))?store.get('fk_tab'):'todo'),FXR=store.get('fk_fxr')||'all';
+let GON=false,D=null,KDD={ipo:[],yoso:{},bun:{items:[]}},TAB=(['todo','yt','ipo','fx','pl','set'].includes(store.get('fk_tab'))?store.get('fk_tab'):'todo'),FXR=store.get('fk_fxr')||'all';
 
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');clearTimeout(e._t);e._t=setTimeout(()=>e.classList.remove('on'),2200)}
 
@@ -889,46 +907,68 @@ function gainLine(pl,inn){const pc=inn?(pl/inn*100):0;return `<span class="${pl>
 function atFmt(s){if(!s)return'';const d=new Date(String(s).replace(' ','T'));if(isNaN(d))return'';const t=new Date(),y=new Date(t-864e5);
   const hm=d.getHours()+':'+String(d.getMinutes()).padStart(2,'0'),day=d.toDateString()===t.toDateString()?'今日':d.toDateString()===y.toDateString()?'昨日':(d.getMonth()+1)+'/'+d.getDate();
   return `<div class="hat${t-d>13*36e5?' old':''}">${day} ${hm} 時点</div>`}
+// 2026/11/26 ホームを一新（A案・リスト型）：フクリで増やせた額（円と%）＋口座ごと1行（入金→今・増えた円と%）。
+// 楽天銀行・NISA・配当金はホームに出さない。証券口座は管理表「口座まとめ」の実際の残高、FXはGMOコインの入金額＋損益
+let HOMEH='';
+function homeData(){
+  const K=kzAcct(),fr=fxReal(),fx=fr?fxSum():0,fxIn=fr?(cfgNum('元金：GMOコイン')||0):0;
+  const rows=K.rows.map(x=>({n:x.n,now:x.now,inn:x.inn,diff:x.diff,err:x.err,my:x.my,cash:x.cash,stk:x.stk}));
+  if(fr||fxIn)rows.push({n:'FX',sub:'GMOコイン',fx:1,now:fxIn+fx,inn:fxIn,diff:fx});
+  const ok=rows.filter(x=>x.now!=null);
+  const show=rows.filter(x=>x.now==null||x.now>0||x.inn>0||(x.my&&x.my.length)).sort((a,b)=>(b.inn||0)-(a.inn||0)||(b.now||0)-(a.now||0));
+  const zero=rows.filter(x=>!show.includes(x));
+  const inn=ok.reduce((a,x)=>a+(x.inn||0),0),gain=ok.reduce((a,x)=>a+(x.diff||0),0),now=ok.reduce((a,x)=>a+(x.now||0),0);
+  return{K,rows,show,zero,inn,gain,now,has:K.has||fr};
+}
+const pctS=(g,i)=>{if(!i)return'';const v=Math.abs(g/i*100);return (g>0?'+':g<0?'−':'±')+(v>0&&v<1?v.toFixed(2):v.toFixed(1))+'%'};
+const clS=v=>v>0?'up':v<0?'dn':'';
 function renderTodo(){
   const el=$('#p-todo');const rows=(D&&D.ipo)||[];
   const all=todoItems(rows);TODO=all;const it=all.filter(vis);const n=it.filter(x=>x.w).length;appBadge(n);
-  // 2026/11/13 ホームをA案に：全部の合計・増やせた額＋4枚のカード（IPO・分売／NISA／FX／楽天銀行）
-  const A=acct(),set=A.filter(a=>a.inn!=null),inn=set.reduce((a,x)=>a+x.inn,0),pl=set.reduce((a,x)=>a+x.pl,0);
-  // 2026/11/26 IPO・分売は管理表「口座まとめ」の実際の残高で出す（入金額と比べた変動）
-  const KZ=kzAcct();
-  const H=(BK().hist||[]).filter(h=>h.y!=null),ipo=H.filter(h=>(h.k||'IPO')==='IPO').reduce((a,h)=>a+(+h.y||0),0),bun=H.filter(h=>h.k==='分売').reduce((a,h)=>a+(+h.y||0),0);
-  const S=(D&&D.status)||{},NI=S.nisa||null,BA=S.bank||null,fr=fxReal(),fx=fxSum(),fxIn=fr?(cfgNum('元金：GMOコイン')||0):0;
-  const nIn=NI&&NI.inn!=null?+NI.inn:null,nG=NI&&NI.gain!=null?+NI.gain:null,bk=BA&&BA.yen!=null?+BA.yen:null;
-  // NISA：今入っている金額・今の分で増えた額（含み益）・累計で増えた額（引き出し分も含む）の3つ（2026/11/14）
-  const nv=x=>x!=null&&x!==''&&isFinite(+x)?+x:null,nNow=NI?nv(NI.now??NI.val??NI.yen):null,nUr=NI?nv(NI.unreal??NI.pl):null;
-  const ipNow=KZ.has?KZ.now:(set.length?inn+pl:0),ipDiff=KZ.has?KZ.diff:pl;
-  const total=ipNow+(nNow!=null?nNow:(nIn!=null&&nG!=null?nIn+nG:0))+(bk||0)+(fr?fxIn+fx:0),gain=ipDiff+(nG||0)+(fr?fx:0),any=KZ.has||set.length||NI||BA;
-  const sg=v=>`<span class="${v<0?'dn':'up'}">${pm(v)}</span>`,wait='<div class="hs">次の確認のあとに出ます</div>';
-  el.innerHTML=`<div class="hd hrow"><div><div class="eyebrow">フクリ</div><h1>ホーム</h1></div>
-     <button class="hbell" aria-label="今やること" onclick="showTodo()"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>${n?`<b class="badge">${n}</b>`:''}</button></div>
-   <div class="hd" style="padding-top:0"><div class="cap">全部の合計</div>
-     <div class="big">${any?yen(total):'—'}<small>円</small></div>
-     <div class="gain">${any?`${sg(gain)} <span class="hlab">増やせた額</span>`:'<span class="cap">毎日12時と21時の確認のあとに出ます。</span>'}</div></div>
-   <div class="hg">
-    <div class="glass ht"><div class="hk"><i style="background:#d14b4b"></i>楽天銀行</div><div class="hs">残高</div>
-      ${bk!=null?`<div class="hv">${yen(bk)}円</div><div class="hs">増やせた額には入れない</div>${atFmt(BA.at)}`:wait}</div>
-    <div class="glass ht tap" onclick="showNisa()"><div class="hk"><i style="background:#7cc7ff"></i>NISA<span class="go" style="margin-left:auto">›</span></div><div class="hs">今入っている金額</div>
-      ${NI?`<div class="hv">${nNow!=null?yen(nNow)+'円':'—'}</div>
-      <div class="hl"><span>今の分で増えた</span>${nUr!=null?sg(nUr):'—'}</div>
-      <div class="hl"><span>累計で増えた</span>${nG!=null?sg(nG):'—'}</div>
-      <div class="hs">累計は引き出した分も含む</div>${atFmt(NI.at)}`:wait}</div>
-    <div class="glass ht tap" onclick="go('ipo')"><div class="hk"><i style="background:#A78BFA"></i>IPO・分売<span class="go" style="margin-left:auto">›</span></div><div class="hs">残高</div>
-      ${KZ.has?`<div class="hv">${yen(KZ.now)}円</div>
-      <div class="hl"><span>入金額</span>${yen(KZ.inn)}円</div><div class="hl"><span>変動</span>${sg(KZ.diff)}</div>`:set.length?`<div class="hv">${yen(inn+pl)}円</div>
-      <div class="hl"><span>入金額</span>${yen(inn)}円</div><div class="hl"><span>変動</span>${sg(pl)}</div>
-      `:wait}</div>
-    <div class="glass ht tap" onclick="go('fx')"><div class="hk"><i style="background:#5FD39A"></i>FX${fr?'':'<span class="tg2">練習</span>'}<span class="go" style="margin-left:auto">›</span></div><div class="hs">残高</div>
-      <div class="hv ${fr?'':'mu'}">${yen(fxIn+(fr?fx:0))}円</div>
-      <div class="hl"><span>入金額</span>${yen(fxIn)}円</div><div class="hl"><span>変動</span>${fr?sg(fx):`<span class="mu">${pm(fx)}</span>`}</div>${fr?'':'<div class="hs">練習なので合計に入れない</div>'}</div>
-   </div>
-   ${divRow(S.div)}
-   <button class="glass hrow2" onclick="showAcct()"><span>証券口座ごと（${A.length}社）</span><span class="mu">開く ›</span></button>
-   <div class="hupd">${KZ.last?'証券口座 '+kzAt(KZ.last)+' 時点・':''}毎日12時と21時に確認</div>`;
+  const H=homeData(),Y=v=>'¥'+Math.round(v).toLocaleString('ja-JP');
+  let h=`<div class="hd hrow"><div><div class="eyebrow">フクリ</div><h1>ホーム</h1></div>
+     <button class="hbell" aria-label="今やること" onclick="showTodo()"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>${n?`<b class="badge">${n}</b>`:''}</button></div>`;
+  if(!H.has){el.innerHTML=h+`<div class="empty">まだ口座の確認の記録がありません。<br>毎日12時と21時に自動で確認します。</div>`;HOMEH='';return}
+  h+=`<div class="glass hhero"><div class="cap">フクリで増やせた額</div>
+     <div class="hbig ${clS(H.gain)}">${pmY2(H.gain)}<span class="hpc">${pctS(H.gain,H.inn)}</span></div>
+     <div class="hsub">入金 ${Y(H.inn)}<span class="ar">→</span>今 ${Y(H.now)}</div>${H.K.last?`<div class="hsub" style="font-size:11px;color:var(--mute);margin-top:4px">${kzAt(H.K.last)} 時点・毎日12時と21時に確認</div>`:''}</div>
+   <div class="cap hcap">口座ごと</div><div class="glass hlist">`;
+  H.show.forEach((x,i)=>{
+    const tap=x.fx?`go('fx')`:`homeAcct(${H.rows.indexOf(x)})`;
+    h+=`<button class="hrw" onclick="${tap}"><span class="hn">${esc(x.n)}${x.sub?`<em>${esc(x.sub)}</em>`:''}
+      <small>${x.now==null?esc(x.err||'まだ読めていません'):`入金 ${Y(x.inn)} → ${Y(x.now)}`}</small></span>
+      ${x.now==null?'<span class="hv2 mu">—</span>':`<span class="hv2 ${clS(x.diff)}">${pmY2(x.diff)}<small>${x.inn?pctS(x.diff,x.inn):''}</small></span>`}<span class="go">›</span></button>`});
+  h+=`</div>`;
+  if(H.zero.length)h+=`<div class="hupd" style="margin-top:8px">0円の口座：${esc(H.zero.map(x=>x.n).join('・'))}</div>`;
+  if(h===HOMEH)return;HOMEH=h;el.innerHTML=h;
+}
+// 口座の行を押すと、その口座の中身（お金・特定口座の株）
+function homeAcct(i){const x=homeData().rows[i];if(!x)return;const Y=v=>'¥'+Math.round(v).toLocaleString('ja-JP');
+  const my=(x.my||[]);
+  sheet(x.n,`<div class="dtot ${clS(x.diff)}">${x.now==null?'—':pmY2(x.diff)}<span style="font-size:15px;margin-left:8px">${x.now!=null&&x.inn?pctS(x.diff,x.inn):''}</span></div>
+    <div class="trr"><span class="nm">入金額</span><span class="pp">${Y(x.inn||0)}</span></div>
+    <div class="trr"><span class="nm">今の残高</span><span class="pp">${x.now==null?'—':Y(x.now)}</span></div>
+    ${x.cash!=null?`<div class="trr"><span class="nm">お金</span><span class="pp">${Y(x.cash)}</span></div>`:''}
+    ${my.length?'<div class="cap" style="margin:14px 0 4px;font-weight:700">持っている株</div>'+my.map(h=>`<div class="trr"><span class="nm">${esc(h[3]||h[2])}<em>${esc([h[2],h[4]?h[4]+'株':''].filter(Boolean).join(' '))}</em></span><span class="pp ${clS(+h[8]||0)}">${h[7]!==''?Y(+h[7]):'—'}${h[8]!==''?`<small style="display:block;font-size:11px">${pmY2(+h[8])}</small>`:''}</span></div>`).join(''):''}
+    <div class="ts" style="padding-top:10px;font-size:12px;color:var(--sub)">入金額は、設定の「証券口座」で変えられます。<br>NISAの株は入れていません。</div>`)}
+// ---------- 株主優待（2026/11/26 ホームの右のタブ） ----------
+// Macのフクリが優待クロスの記録（yutai.json）を status.yutai で送る。権利付最終日の前＝クロス中、過ぎたら＝権利が取れた
+function renderYT(){
+  const el=$('#p-yt');if(!el)return;const Y=v=>'¥'+Math.round(v).toLocaleString('ja-JP');
+  const L=((((D&&D.status)||{}).yutai)||{}).list||[],td=ymd(new Date()),yr=String(new Date().getFullYear());
+  const net=x=>x.net!=null?+x.net:((+x.val||0)-(+x.cost||0));
+  const act=L.filter(x=>x.status==='ordered'&&String(x.last||'')>=td).sort((a,b)=>a.last<b.last?-1:1);
+  const got=L.filter(x=>x.status==='ordered'&&String(x.last||'')<td||x.status==='got').sort((a,b)=>a.last<b.last?1:-1);
+  const ty=L.filter(x=>x.status==='ordered'&&String(x.last||'').startsWith(yr)),tv=ty.reduce((a,x)=>a+(+x.val||0),0),tc=ty.reduce((a,x)=>a+(+x.cost||0),0),tn=ty.reduce((a,x)=>a+net(x),0);
+  const md2=s=>{const m=String(s||'').match(/\d+-(\d+)-(\d+)/);return m?`${+m[1]}/${+m[2]}`:''};
+  const row=(x,st)=>`<div class="hrw" style="cursor:default"><span class="hn">${esc(x.code)} ${esc(x.name||'')}<small>${md2(x.last)} 権利日・${esc(x.sh||100)}株・${st}</small></span><span class="hv2 ${clS(net(x))}">${pmY2(net(x))}<small class="mu">${x.val!=null?'価値 '+Y(+x.val):''}</small></span></div>`;
+  let h=`<div class="hd"><div class="eyebrow">フクリ</div><h1>株主優待</h1></div>
+   <div class="glass hhero"><div class="cap">今年の優待で得した額</div><div class="hbig ${clS(tn)}">${pmY2(tn)}</div>
+   <div class="hsub">優待の価値 ${Y(tv)}<span class="ar">−</span>コスト ${Y(tc)}</div></div>`;
+  h+=`<div class="cap hcap">クロス中（${act.length}件）</div>`+(act.length?`<div class="glass hlist">${act.map(x=>row(x,'クロス中')).join('')}</div>`:'<div class="hupd" style="text-align:left;margin:4px 20px 0">今クロスしている銘柄はありません。<br>楽天で、得が500円以上の銘柄を自動でクロスします。</div>');
+  if(got.length)h+=`<div class="cap hcap">権利が取れた（${got.length}件）</div><div class="glass hlist">${got.slice(0,6).map(x=>row(x,'届くのは2〜3か月後')).join('')}</div>`;
+  h+=`<div class="hupd">価値はみんかぶの優待換算額です。<br>設定タブ「優待価値：コード」で上書きできます。</div>`;
+  el.innerHTML=h;
 }
 // 配当金（2026/11/21）：楽天・SBIなどの配当金の履歴を毎晩読んで、今年の合計と累計を出す。NISAで持っている株の分も入る
 function divRow(V){const sg=v=>`<span class="${v<0?'dn':'up'}">${pm(v)}</span>`;
@@ -1041,7 +1081,7 @@ const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+Stri
 let PLM={L:[]};
 function plRows(){
   const B=BK(),fr=fxReal(),L=[];
-  (B.hist||[]).forEach(h=>L.push({d:String(h.d||''),k:h.k||'IPO',n:h.n||'',b:h.b||'',e:h.e||'',y:h.y,est:!!h.est,cnt:true}));
+  (B.hist||[]).filter(h=>h.e!=='落選').forEach(h=>L.push({d:String(h.d||''),k:h.k||'IPO',n:h.n||'',b:h.b||'',e:h.e||'',y:h.y,est:!!h.est,cnt:true}));
   trades().forEach(x=>L.push({d:x.d+' '+tm(x.ot),k:'FX',n:x.t,b:fr?'':'練習',e:x.side,y:x.p,cnt:fr,fx:x}));
   return L.sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:0);
 }
@@ -1275,9 +1315,9 @@ function syncSet(){const el=$('#p-set');if(!el||!el.innerHTML){renderSet();retur
   const h=$('#bellhd');if(h)h.textContent=BELL?'オン':'オフ';
   syncAcct();el.querySelectorAll('.nrow').forEach(r=>{r.style.opacity=BELL?'':'.4';const b=r.querySelector('.sw');if(b){b.disabled=!BELL;b.classList.toggle('on',NPREF[b.dataset.k]!==false)}});}
 let SETDONE='';
-function render(){renderTodo();renderIPO();renderFX();renderPL();const k=(SESS?1:0)+'|'+GON;if(SETDONE!==k){SETDONE=k;renderSet()}else syncSet()}
+function render(){document.querySelectorAll('.page.on').forEach(e=>{if(e._shown&&Date.now()-e._shown>650)e.classList.add('calm')});renderTodo();renderIPO();renderYT();renderFX();renderPL();const k=(SESS?1:0)+'|'+GON;if(SETDONE!==k){SETDONE=k;renderSet()}else syncSet()}
 function go(p){if((p==='pl'||p==='fx')&&CV[p]){const S=CV[p],n=new Date(),cur=new Date(n.getFullYear(),n.getMonth(),1),old=S.mon;S.mode='cal';S.mon=cur;if($('#mo-'+p))redrawMoney(p,!old?'jump':cur>old?'next':cur<old?'prev':'jump')}TAB=p;if(p!=='ipo'&&p!=='fx')store.set('fk_tab',p);document.body.dataset.tab=p;
-  document.querySelectorAll('.page').forEach(e=>e.classList.toggle('on',e.id==='p-'+p));
+  document.querySelectorAll('.page').forEach(e=>{const on=e.id==='p-'+p;if(on&&(!e.classList.contains('on')||!e._shown)){e.classList.remove('calm');e._shown=Date.now()}e.classList.toggle('on',on)});
   const bs=[...document.querySelectorAll('nav button')];const np=(p==='ipo'||p==='fx')?'todo':p;bs.forEach(b=>b.classList.toggle('on',b.dataset.p===np));
   const i=bs.findIndex(b=>b.dataset.p===np);$('#blob').style.transform=`translateX(${i*68}px)`;$('#main').scrollTop=0;
   if(p==='fx')requestAnimationFrame(fxScroll);
@@ -1329,7 +1369,8 @@ let swReg=null,BELL=false;
 const b64=s=>{const p='='.repeat((4-s.length%4)%4);const r=atob((s+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from([...r].map(c=>c.charCodeAt(0)))};
 async function bellState(){let on=false;try{const r=swReg||await navigator.serviceWorker.getRegistration();on=!!(r&&await r.pushManager.getSubscription())&&Notification.permission==='granted'}catch(_){}BELL=on;syncSet();return on}
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').then(r=>{swReg=r;bellState()}).catch(()=>{});
-navigator.serviceWorker&&navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&e.data.tab)go(e.data.tab)});
+// 2026/11/26 通知をタップしたら：ホームに戻り、最新を読み込んでからベル（今やること・お知らせ）を開く
+navigator.serviceWorker&&navigator.serviceWorker.addEventListener('message',e=>{if(e.data&&'tab' in e.data){go('todo');load().then(()=>showTodo())}});
 async function rekey(){
   if(!confirm('合い鍵を作り直しますか？\n今のリンクは使えなくなり、ホーム画面のフクリも新しいリンクで追加し直しが必要です。\nほかの端末のログインも切れます。'))return;
   try{const r=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify({kind:'rekey',key:KEY,sess:SESS})}).then(r=>r.json());
@@ -1355,12 +1396,13 @@ async function bellOn(){
     if(!res.ok)throw 0;toast('通知がつながりました');bellState();
   }catch(e){BELL=false;syncSet();toast('通知の登録に失敗しました')}
 }
-{const q=new URLSearchParams(location.search).get('tab');if(q)store.set('fk_tab',q),TAB=q}
+// ?tab=〜 は通知をタップして開いた時だけ付く → ホームでベルを開く（2026/11/26）
+let OPENBELL=false;{const q=new URLSearchParams(location.search).get('tab');if(q!=null){OPENBELL=true;TAB='todo';store.set('fk_tab','todo');try{history.replaceState(null,'',location.pathname+location.hash)}catch(_){}}}
 
 // 前回の中身をすぐ出してから最新を読む
 if(KEY&&!SESS&&!location.hash.includes('id_token'))needLogin();
 if(SESS){try{const c=JSON.parse(store.get('fk_cache')||'null');if(c){D=c.D;KDD=c.KDD;render()}}catch(_){}}
-renderSet();go(TAB);gReturn().then(()=>{if(SESS)load()});
+renderSet();go(TAB);gReturn().then(async()=>{if(SESS){await load();if(OPENBELL){OPENBELL=false;showTodo()}}});
 
 // 更新の自動反映：新しい版が出ていたら読み直す
 async function copyKeyLink(){const u=location.origin+location.pathname+'#k='+KEY;try{await navigator.clipboard.writeText(u);toast('合い鍵リンクをコピーしました')}catch(_){prompt('このリンクをコピーしてください',u)}}
