@@ -541,6 +541,7 @@ nav.lg.lg-drag .lg-pill{opacity:0!important}
 .flb{display:none;padding:0 14px 6px}.flb.op{display:block;animation:rise .3s cubic-bezier(.2,.8,.2,1) both}
 .hupd{font-size:11px;color:var(--mute);text-align:center;margin:14px 20px 0;font-variant-numeric:tabular-nums}
 .kzt .s b{font-weight:600}.kr .a span b{font-weight:600;font-size:inherit}
+.kzs{margin-top:5px;padding-top:5px;border-top:1px solid var(--line)}.kzs span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 </style>
 <script>
 /* LGBar：nav＝下のタブ、sel＝項目、acc＝選択色。項目の選択状態は各アプリの「.on」をそのまま使う */
@@ -644,7 +645,7 @@ LSwipe.remove=(box,then)=>{if(LSwipe.cur&&LSwipe.cur.box===box)LSwipe.cur=null;c
 </script>
 <script>LGBar(document.getElementById('nav'),{sel:'button',acc:'#A78BFA'})</script>
 <script>
-const VERSION='69';
+const VERSION='70';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -754,16 +755,18 @@ function renderIPO(){
   let h=BACK+`<div class="hd"><div class="eyebrow">証券口座ごと</div><h1>IPO・分売</h1></div>`;
   if(!K.has){el.innerHTML=h+`<div class="empty">まだ口座の確認の記録がありません。<br>毎日12時と21時に自動で確認します。</div>`;return}
   const show=K.rows.filter(x=>x.now==null||x.now>0||x.inn>0||x.my.length),zero=K.rows.filter(x=>!show.includes(x));
-  h+=`<div class="glass kzl" style="margin-top:14px"><div class="kzt"><div class="l">残高の合計</div><div class="v"><small>¥</small>${Math.round(K.now).toLocaleString('ja-JP')}</div>
-    <div class="s">入金額 ${Y(K.inn)}・変動 <b class="${cl(K.diff)}">${pmY2(K.diff)}</b></div></div>`;
-  show.forEach(x=>{const k='k'+x.n,op=!!KOPEN[k];
-    const sub=x.now==null?esc(x.err||'まだ読めていません'):`入金 ${Y(x.inn)}・<b class="${cl(x.diff)}">${pmY2(x.diff)}</b>`;
-    const det=`<div class="khr"><span class="nm2" style="font-weight:500;color:var(--sub)">口座のお金</span><span class="r">${x.cash!=null?Y(x.cash):'—'}</span></div>`+
-      x.my.map(m=>{const n=v=>{const z=parseFloat(String(v).replace(/[,円¥]/g,''));return isNaN(z)?null:z},pl=n(m[8]),q=n(m[4]),c0=n(m[5]),p0=n(m[6]);
-        return `<div class="khr"><span class="nm2">${esc(m[3]||m[2])}</span><span class="r">${q!=null?q.toLocaleString('ja-JP')+'株 ':''}${Y(n(m[7])||0)}${pl!=null?` <b class="${cl(pl)}">${pmY2(pl)}</b>`:''}${c0!=null&&p0!=null?`<span>${c0.toLocaleString('ja-JP')}円→${p0.toLocaleString('ja-JP')}円</span>`:''}</span></div>`}).join('');
-    h+=`<button class="kr${op?' op':''}" onclick="kzTog('${esc(k)}',this)"><span class="ch">›</span><span class="n">${esc(x.n)}</span><span class="a"><b>${x.now!=null?Y(x.now):'—'}</b><span>${sub}</span></span></button><div class="kh${op?' op':''}">${det}</div>`});
-  if(zero.length)h+=`<div class="kr z"><span class="ch"></span><span class="n">0円の口座 ${zero.length}社</span><span class="zn">${esc(zero.map(x=>x.n).join('・'))}</span></div>`;
-  h+=`</div><div class="hupd">${K.last?kzAt(K.last)+' 時点（毎日12時と21時に確認）':''}</div>`;
+  const sg=v=>`<span class="${cl(v)}">${pmY2(v)}</span>`;
+  // 2026/11/26 ホームと同じカード形式（展開なし・口座のお金の内訳なし）
+  h+=`<div class="glass ht" style="margin:14px 16px 0"><div class="hk"><i style="background:#A78BFA"></i>残高の合計</div><div class="hv" style="font-size:26px">${Y(K.now)}</div>
+    <div class="hl"><span>入金額</span>${Y(K.inn)}</div><div class="hl"><span>変動</span>${sg(K.diff)}</div></div><div class="hg">`;
+  show.forEach(x=>{
+    h+=`<div class="glass ht"><div class="hk">${esc(x.n)}</div><div class="hv">${x.now!=null?Y(x.now):'—'}</div>
+      ${x.now==null?`<div class="hs">${esc(x.err||'まだ読めていません')}</div>`:`<div class="hl"><span>入金額</span>${Y(x.inn)}</div><div class="hl"><span>変動</span>${sg(x.diff)}</div>`}
+      ${x.my.map(m=>{const n=v=>{const z=parseFloat(String(v).replace(/[,円¥]/g,''));return isNaN(z)?null:z},pl=n(m[8]),q=n(m[4]);
+        return `<div class="hl kzs"><span>${esc(m[3]||m[2])}${q!=null?' '+q.toLocaleString('ja-JP')+'株':''}</span>${pl!=null?sg(pl):''}</div>`}).join('')}</div>`});
+  h+=`</div>`;
+  if(zero.length)h+=`<div class="hupd" style="margin-top:10px">0円の口座：${esc(zero.map(x=>x.n).join('・'))}</div>`;
+  h+=`<div class="hupd">${K.last?kzAt(K.last)+' 時点（毎日12時と21時に確認）':''}</div>`;
   el.innerHTML=h;
 }
 // ---------- 次にやること・口座のお金 ----------
