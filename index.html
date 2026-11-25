@@ -539,6 +539,8 @@ nav.lg.lg-drag .lg-pill{opacity:0!important}
 .flh em{font-style:normal;font-weight:400;color:var(--mute);margin-left:6px;font-size:13px}
 .flh i{font-style:normal;color:var(--mute);transition:transform .2s}.flh.op i{transform:rotate(90deg)}
 .flb{display:none;padding:0 14px 6px}.flb.op{display:block;animation:rise .3s cubic-bezier(.2,.8,.2,1) both}
+.hupd{font-size:11px;color:var(--mute);text-align:center;margin:14px 20px 0;font-variant-numeric:tabular-nums}
+.kzt .s b{font-weight:600}.kr .a span b{font-weight:600;font-size:inherit}
 </style>
 <script>
 /* LGBar：nav＝下のタブ、sel＝項目、acc＝選択色。項目の選択状態は各アプリの「.on」をそのまま使う */
@@ -642,7 +644,7 @@ LSwipe.remove=(box,then)=>{if(LSwipe.cur&&LSwipe.cur.box===box)LSwipe.cur=null;c
 </script>
 <script>LGBar(document.getElementById('nav'),{sel:'button',acc:'#A78BFA'})</script>
 <script>
-const VERSION='68';
+const VERSION='69';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -729,54 +731,39 @@ function ipoItem(x){const bun=x.kind==='分売';const J=bun?{}:judge(x.code);con
 // ---------- 2026/11/26 口座ごとのお金と保有株（管理表「口座まとめ」「保有株」。NISAの株は出さない） ----------
 let KOPEN={};
 function kzTog(k,b){KOPEN[k]=!KOPEN[k];b.classList.toggle('op',KOPEN[k]);const n=b.nextElementSibling;if(n)n.classList.toggle('op',KOPEN[k])}
-function kouzaHTML(){
+// 管理表の会社名 → 設定タブ「元金：」の名前
+const KZCFG={eスマート:'三菱UFJ eスマート',日興:'SMBC日興'};
+// 口座ごと：残高（お金＋特定口座の株）・入金額・変動（NISAの株は入れない）
+function kzAcct(){
   const kz=(D&&D.kz)||{},sum=kz.sum||[],hold=kz.hold||[];
-  if(!sum.length)return `<div class="sec"><span>口座のお金</span></div><div class="glass kzt"><div class="s">まだ読み取りの記録がありません。<br>12時と21時に自動で読みます。</div></div>`;
   const N=v=>{if(v===''||v==null)return null;const x=parseFloat(String(v).replace(/[,円¥]/g,''));return isNaN(x)?null:x};
-  const Y=v=>'¥'+Math.round(v).toLocaleString('ja-JP');
-  const cs=sum.filter(r=>r[0]&&r[0]!=='楽天銀行'&&!/^合計/.test(String(r[0])));
-  const hs=hold.filter(r=>r[0]&&String(r[1])!=='NISA');
   const tD=s=>{const d=new Date(String(s).replace(' ','T'));return isNaN(d)?null:d};
-  let total=0,last=null;
-  const rows=cs.map(r=>{const c=N(r[1]),st=N(r[2]),t=N(r[3]);const my=hs.filter(h=>h[0]===r[0]);
-    const stk=my.reduce((a,h)=>a+(N(h[7])||0),0);const c2=t!=null&&st!=null?t-st:c;const tot=c2!=null||stk?(c2||0)+stk:null;total+=tot||0;
-    const d=tD(r[5]);if(d&&(!last||d>last))last=d;return{n:String(r[0]),c:c2,stk,tot,my,err:String(r[6]||'')}});
-  const show=rows.filter(x=>x.tot==null||x.tot>0||x.my.length),zero=rows.filter(x=>!(x.tot==null||x.tot>0||x.my.length));
-  const at=last?`${last.getMonth()+1}/${last.getDate()} ${last.getHours()}:${String(last.getMinutes()).padStart(2,'0')}に読んだ`:'';
-  const cnt=rows.length;
-  let h=`<div class="sec"><span>口座のお金</span><span>${esc(at)}</span></div>
-  <div class="glass kzl"><div class="kzt"><div class="l">${cnt}社の合計（お金＋株）</div><div class="v"><small>¥</small>${Math.round(total).toLocaleString('ja-JP')}</div></div>`;
-  show.forEach(x=>{const k='k'+x.n,op=!!KOPEN[k],has=x.my.length>0;
-    const amt=x.c!=null?`<b>${Y(x.c)}</b>${x.stk?`<span>株 ${Y(x.stk)}</span>`:''}`:`<b style="color:var(--mute)">—</b><span>${x.stk?'株 '+Y(x.stk)+'・':''}${esc(x.err||'お金はまだ読めていません')}</span>`;
-    h+=has?`<button class="kr${op?' op':''}" onclick="kzTog('${esc(k)}',this)"><span class="ch">›</span><span class="n">${esc(x.n)}</span><span class="a">${amt}</span></button>
-      <div class="kh${op?' op':''}">${x.my.map(m=>{const pl=N(m[8]),q=N(m[4]),c0=N(m[5]),p0=N(m[6]);
-        return `<div class="khr"><span class="nm2">${esc(m[3]||m[2])}</span><span class="r">${q!=null?q.toLocaleString('ja-JP')+'株 ':''}${Y(N(m[7])||0)}${pl!=null?` <b class="${pl>=0?'up':'dn'}">${pl>=0?'+':'−'}¥${Math.abs(Math.round(pl)).toLocaleString('ja-JP')}</b>`:''}${c0!=null&&p0!=null?`<span>${c0.toLocaleString('ja-JP')}円→${p0.toLocaleString('ja-JP')}円</span>`:''}</span></div>`}).join('')}</div>`
-      :`<div class="kr"><span class="ch"></span><span class="n">${esc(x.n)}</span><span class="a">${amt}</span></div>`});
-  if(zero.length)h+=`<div class="kr z"><span class="ch"></span><span class="n">0円の口座 ${zero.length}社</span><span class="zn">${esc(zero.map(x=>x.n).join('・'))}</span></div>`;
-  return h+`</div>`;
-}
+  const hs=hold.filter(r=>r[0]&&String(r[1])!=='NISA');let last=null;
+  const rows=sum.filter(r=>r[0]&&r[0]!=='楽天銀行'&&!/^合計/.test(String(r[0]))).map(r=>{
+    const c=N(r[1]),t=N(r[3]),st=N(r[2]),my=hs.filter(h=>h[0]===r[0]);
+    const stk=my.reduce((a,h)=>a+(N(h[7])||0),0),c2=t!=null&&st!=null?t-st:c;
+    const now=c2!=null||stk?(c2||0)+stk:null,inn=cfgNum('元金：'+(KZCFG[r[0]]||r[0]))||0;
+    const d=tD(r[5]);if(d&&(!last||d>last))last=d;
+    return{n:String(r[0]),cash:c2,stk,now,inn,diff:now!=null?now-inn:null,my,err:String(r[6]||'')}});
+  const ok=rows.filter(x=>x.now!=null);
+  return{rows,last,now:ok.reduce((a,x)=>a+x.now,0),inn:rows.reduce((a,x)=>a+x.inn,0),diff:ok.reduce((a,x)=>a+x.diff,0)+rows.filter(x=>x.now==null).reduce((a,x)=>a,0),has:rows.length>0}}
+const pmY2=v=>(v>0?'+':v<0?'−':'±')+'¥'+Math.abs(Math.round(v)).toLocaleString('ja-JP');
+const kzAt=d=>d?`${d.getMonth()+1}/${d.getDate()} ${d.getHours()}:${String(d.getMinutes()).padStart(2,'0')}`:'';
 function renderIPO(){
-  const el=$('#p-ipo');const rows=(D&&D.ipo)||[];
-  const g={};rows.forEach(r=>{const[b,code,name,kind,a,at,l,lt,bu,bt,m]=r;(g[code]=g[code]||{code,name,kind,br:{}}).br[b]={a,at,l,lt,bu,bt,m};if(name)g[code].name=name});
-  const list=Object.values(g).filter(x=>Object.values(x.br).some(v=>v.a&&v.a!=='見送り'||v.l||v.bu));
-  const cnt=k=>rows.filter(r=>k(r)).length;
-  const won=cnt(r=>/当選/.test(r[6])),bought=cnt(r=>r[8]==='購入済'),applying=cnt(r=>r[4]==='申込済'&&!r[6]&&!r[8]);
-  const gainAll=list.reduce((s,x)=>s+Object.values(x.br).filter(v=>v.bu==='購入済').length*((judge(x.code).gain)||0),0);
-  const run=((D&&D.runs)||[]).find(r=>r[1]!=='警告')||[];
-  WAIT=[];list.forEach(x=>Object.entries(x.br).forEach(([b,v])=>{if(v.a==='申込済'&&!v.l&&!v.bu)WAIT.push({b,code:x.code,name:x.name,bun:x.kind==='分売'})}));
-  let h=BACK+`<div class="hd"><div class="row"><div><div class="eyebrow">自動化IPO・分売</div><h1>IPO・分売</h1></div>
-     <button class="pill" onclick="showWait()"><b>${WAIT.length}</b>件 結果待ち<svg viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button></div>
-   <div class="cap">${run[0]?`前回の自動実行：${esc(run[0].slice(5,16).replace('-','/').replace('T',' '))}（${esc(run[1])}）`:'まだ記録がありません。'}</div></div>`;
-  h+=kouzaHTML();
-  list.sort((a,b)=>stage(b)-stage(a));
-  const iL=list.filter(x=>x.kind!=='分売'),bL=list.filter(x=>x.kind==='分売');
-  const FL=(k,t,c,body)=>`<button class="flh${KOPEN['f'+k]?' op':''}" onclick="kzTog('f${k}',this)"><span>${t}<em>${c}</em></span><i>›</i></button><div class="flb${KOPEN['f'+k]?' op':''}">${body}</div>`;
-  h+=`<div class="glass fl">${FL('i','IPO',iL.length+'銘柄',iL.length?iL.map(ipoItem).join(''):'<div class="er" style="color:var(--mute);font-size:12.5px;padding:6px 0">まだ申込の記録がありません。</div>')}${FL('b','分売',bL.length+'銘柄',bL.length?bL.map(ipoItem).join(''):'<div class="er" style="color:var(--mute);font-size:12.5px;padding:6px 0">まだ申込の記録がありません。</div>')}`;
-  const byM={};rows.filter(r=>r[8]==='購入済').forEach(r=>{const g=judge(r[1]).gain;if(g==null)return;const m=String(r[9]||'').slice(0,7)||'不明';byM[m]=(byM[m]||0)+g});
-  const ms=Object.keys(byM).sort().reverse();
-  if(ms.length)h+=FL('m','月ごとの利益','初値で売った場合',`${ms.map(m=>`<div class="row" style="display:flex;justify-content:space-between;padding:6px 0"><span>${esc(m.replace('-','年')+(m.includes('-')?'月':''))}</span><b class="${byM[m]>=0?'up':'dn'}">${pm(byM[m])}</b></div>`).join('')}<div class="row" style="display:flex;justify-content:space-between;padding:8px 0 0;border-top:1px solid var(--line);margin-top:4px"><span>合計</span><b class="${gainAll>=0?'up':'dn'}">${pm(ms.reduce((a,m)=>a+byM[m],0))}</b></div>`);
-  h+=`</div>`;
-  h+=`<div class="foot">SBI・楽天は全部のIPOに申し込み、当選したら「得」の予想のときだけ購入します。<br>DMMは「得」の予想だけ申し込みます。<br>分売は東証のものだけ、楽天・SBIで100株申し込みます。<br>当たったら、その日の朝に成行で売ります。</div>`;
+  const el=$('#p-ipo'),K=kzAcct(),Y=v=>'¥'+Math.round(v).toLocaleString('ja-JP'),cl=v=>v>0?'up':v<0?'dn':'';
+  let h=BACK+`<div class="hd"><div class="eyebrow">証券口座ごと</div><h1>IPO・分売</h1></div>`;
+  if(!K.has){el.innerHTML=h+`<div class="empty">まだ口座の確認の記録がありません。<br>毎日12時と21時に自動で確認します。</div>`;return}
+  const show=K.rows.filter(x=>x.now==null||x.now>0||x.inn>0||x.my.length),zero=K.rows.filter(x=>!show.includes(x));
+  h+=`<div class="glass kzl" style="margin-top:14px"><div class="kzt"><div class="l">残高の合計</div><div class="v"><small>¥</small>${Math.round(K.now).toLocaleString('ja-JP')}</div>
+    <div class="s">入金額 ${Y(K.inn)}・変動 <b class="${cl(K.diff)}">${pmY2(K.diff)}</b></div></div>`;
+  show.forEach(x=>{const k='k'+x.n,op=!!KOPEN[k];
+    const sub=x.now==null?esc(x.err||'まだ読めていません'):`入金 ${Y(x.inn)}・<b class="${cl(x.diff)}">${pmY2(x.diff)}</b>`;
+    const det=`<div class="khr"><span class="nm2" style="font-weight:500;color:var(--sub)">口座のお金</span><span class="r">${x.cash!=null?Y(x.cash):'—'}</span></div>`+
+      x.my.map(m=>{const n=v=>{const z=parseFloat(String(v).replace(/[,円¥]/g,''));return isNaN(z)?null:z},pl=n(m[8]),q=n(m[4]),c0=n(m[5]),p0=n(m[6]);
+        return `<div class="khr"><span class="nm2">${esc(m[3]||m[2])}</span><span class="r">${q!=null?q.toLocaleString('ja-JP')+'株 ':''}${Y(n(m[7])||0)}${pl!=null?` <b class="${cl(pl)}">${pmY2(pl)}</b>`:''}${c0!=null&&p0!=null?`<span>${c0.toLocaleString('ja-JP')}円→${p0.toLocaleString('ja-JP')}円</span>`:''}</span></div>`}).join('');
+    h+=`<button class="kr${op?' op':''}" onclick="kzTog('${esc(k)}',this)"><span class="ch">›</span><span class="n">${esc(x.n)}</span><span class="a"><b>${x.now!=null?Y(x.now):'—'}</b><span>${sub}</span></span></button><div class="kh${op?' op':''}">${det}</div>`});
+  if(zero.length)h+=`<div class="kr z"><span class="ch"></span><span class="n">0円の口座 ${zero.length}社</span><span class="zn">${esc(zero.map(x=>x.n).join('・'))}</span></div>`;
+  h+=`</div><div class="hupd">${K.last?kzAt(K.last)+' 時点（毎日12時と21時に確認）':''}</div>`;
   el.innerHTML=h;
 }
 // ---------- 次にやること・口座のお金 ----------
@@ -905,12 +892,15 @@ function renderTodo(){
   const all=todoItems(rows);TODO=all;const it=all.filter(vis);const n=it.filter(x=>x.w).length;appBadge(n);
   // 2026/11/13 ホームをA案に：全部の合計・増やせた額＋4枚のカード（IPO・分売／NISA／FX／楽天銀行）
   const A=acct(),set=A.filter(a=>a.inn!=null),inn=set.reduce((a,x)=>a+x.inn,0),pl=set.reduce((a,x)=>a+x.pl,0);
+  // 2026/11/26 IPO・分売は管理表「口座まとめ」の実際の残高で出す（入金額と比べた変動）
+  const KZ=kzAcct();
   const H=(BK().hist||[]).filter(h=>h.y!=null),ipo=H.filter(h=>(h.k||'IPO')==='IPO').reduce((a,h)=>a+(+h.y||0),0),bun=H.filter(h=>h.k==='分売').reduce((a,h)=>a+(+h.y||0),0);
   const S=(D&&D.status)||{},NI=S.nisa||null,BA=S.bank||null,fr=fxReal(),fx=fxSum(),fxIn=fr?(cfgNum('元金：GMOコイン')||0):0;
   const nIn=NI&&NI.inn!=null?+NI.inn:null,nG=NI&&NI.gain!=null?+NI.gain:null,bk=BA&&BA.yen!=null?+BA.yen:null;
   // NISA：今入っている金額・今の分で増えた額（含み益）・累計で増えた額（引き出し分も含む）の3つ（2026/11/14）
   const nv=x=>x!=null&&x!==''&&isFinite(+x)?+x:null,nNow=NI?nv(NI.now??NI.val??NI.yen):null,nUr=NI?nv(NI.unreal??NI.pl):null;
-  const total=(set.length?inn+pl:0)+(nNow!=null?nNow:(nIn!=null&&nG!=null?nIn+nG:0))+(bk||0)+(fr?fxIn+fx:0),gain=pl+(nG||0)+(fr?fx:0),any=set.length||NI||BA;
+  const ipNow=KZ.has?KZ.now:(set.length?inn+pl:0),ipDiff=KZ.has?KZ.diff:pl;
+  const total=ipNow+(nNow!=null?nNow:(nIn!=null&&nG!=null?nIn+nG:0))+(bk||0)+(fr?fxIn+fx:0),gain=ipDiff+(nG||0)+(fr?fx:0),any=KZ.has||set.length||NI||BA;
   const sg=v=>`<span class="${v<0?'dn':'up'}">${pm(v)}</span>`,wait='<div class="hs">次の確認のあとに出ます</div>';
   el.innerHTML=`<div class="hd hrow"><div><div class="eyebrow">フクリ</div><h1>ホーム</h1></div>
      <button class="hbell" aria-label="今やること" onclick="showTodo()"><svg viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg>${n?`<b class="badge">${n}</b>`:''}</button></div>
@@ -926,15 +916,17 @@ function renderTodo(){
       <div class="hl"><span>累計で増えた</span>${nG!=null?sg(nG):'—'}</div>
       <div class="hs">累計は引き出した分も含む</div>${atFmt(NI.at)}`:wait}</div>
     <div class="glass ht tap" onclick="go('ipo')"><div class="hk"><i style="background:#A78BFA"></i>IPO・分売<span class="go" style="margin-left:auto">›</span></div><div class="hs">残高</div>
-      ${set.length?`<div class="hv">${yen(inn+pl)}円</div>
+      ${KZ.has?`<div class="hv">${yen(KZ.now)}円</div>
+      <div class="hl"><span>入金額</span>${yen(KZ.inn)}円</div><div class="hl"><span>変動</span>${sg(KZ.diff)}</div>`:set.length?`<div class="hv">${yen(inn+pl)}円</div>
       <div class="hl"><span>入金額</span>${yen(inn)}円</div><div class="hl"><span>変動</span>${sg(pl)}</div>
-      <div class="hl"><span>IPO</span>${sg(ipo)}</div><div class="hl"><span>分売</span>${sg(bun)}</div>${atFmt(Object.values(S.cash||{}).map(c=>c&&c.at).filter(Boolean).sort()[0])}`:wait}</div>
+      `:wait}</div>
     <div class="glass ht tap" onclick="go('fx')"><div class="hk"><i style="background:#5FD39A"></i>FX${fr?'':'<span class="tg2">練習</span>'}<span class="go" style="margin-left:auto">›</span></div><div class="hs">残高</div>
       <div class="hv ${fr?'':'mu'}">${yen(fxIn+(fr?fx:0))}円</div>
       <div class="hl"><span>入金額</span>${yen(fxIn)}円</div><div class="hl"><span>変動</span>${fr?sg(fx):`<span class="mu">${pm(fx)}</span>`}</div>${fr?'':'<div class="hs">練習なので合計に入れない</div>'}</div>
    </div>
    ${divRow(S.div)}
-   <button class="glass hrow2" onclick="showAcct()"><span>証券口座ごと（${A.length}社）</span><span class="mu">開く ›</span></button>`;
+   <button class="glass hrow2" onclick="showAcct()"><span>証券口座ごと（${A.length}社）</span><span class="mu">開く ›</span></button>
+   <div class="hupd">${KZ.last?'証券口座 '+kzAt(KZ.last)+' 時点・':''}毎日12時と21時に確認</div>`;
 }
 // 配当金（2026/11/21）：楽天・SBIなどの配当金の履歴を毎晩読んで、今年の合計と累計を出す。NISAで持っている株の分も入る
 function divRow(V){const sg=v=>`<span class="${v<0?'dn':'up'}">${pm(v)}</span>`;
@@ -1233,7 +1225,7 @@ function drawChart(R){
 
 // ---------- 画面の切り替え ----------
 const NCATS=[['apply','申し込んだ','IPOに申し込んだ時。'],['won','当選した','当選・補欠当選の時。'],['buy','購入・辞退した','当選後に購入した、または辞退した時。'],
-  ['lost','落選した','落選の時。'],['money','入金が必要','口座のお金が足りない時。'],['action','手で対応が必要','止まった時・証券会社の重要なお知らせ。'],['point','チャレンジポイント','SBIのIPOチャレンジポイントの使いどきのIPOが来た時。'],['fx','FX','FXの毎日の成績など。'],['refresh','更新が終わった','引っぱって更新して、残高の更新が終わった時。']];
+  ['lost','落選した','落選の時。'],['money','入金が必要','口座のお金が足りない時。'],['action','手で対応が必要','止まった時・証券会社の重要なお知らせ。'],['point','チャレンジポイント','SBIのIPOチャレンジポイントの使いどきのIPOが来た時。'],['fx','FX','FXの毎日の成績など。']];
 let NOPEN=false,NPREF={};try{NPREF=JSON.parse(store.get('fk_npref')||'{}')}catch(_){}
 async function setPref(k,on){
   NPREF[k]=on;syncSet();
@@ -1311,7 +1303,7 @@ let PTR={y:0,d:0,on:false,busy:false};
   const setOff=o=>movers().forEach(x=>{x.style.transform=o?'translateY('+o+'px)':''});
   const anim=on=>[...movers(),el].forEach(x=>x.classList.toggle('ptrm',on));
   const draw=d=>{const off=Math.min(d*.55,130),p=Math.min(d/TH,1);setOff(off);el.style.opacity=Math.min(d/24,1);el.style.transform='translateY('+Math.max(off*.5-21,-21)+'px)';A.style.strokeDashoffset=56-56*p;el.firstElementChild.style.transform='rotate('+(p*270)+'deg)'};
-  m.addEventListener('touchstart',e=>{if(PTR.busy||m.scrollTop>0||document.body.classList.contains('lock')||!SESS)return;PTR.y=e.touches[0].clientY;PTR.on=true;PTR.d=0;anim(false)},{passive:true});
+  m.addEventListener('touchstart',e=>{return;/* 2026/11/26 引っぱって更新はなし */if(PTR.busy||m.scrollTop>0||document.body.classList.contains('lock')||!SESS)return;PTR.y=e.touches[0].clientY;PTR.on=true;PTR.d=0;anim(false)},{passive:true});
   m.addEventListener('touchmove',e=>{if(!PTR.on)return;if(m.scrollTop>0){PTR.on=false;draw(0);return}const d=e.touches[0].clientY-PTR.y;if(d<=0){PTR.d=0;draw(0);return}PTR.d=d;draw(d)},{passive:true});
   const end=()=>{if(!PTR.on)return;PTR.on=false;anim(true);if(PTR.d>=TH)ptrRun();else{draw(0);setTimeout(()=>anim(false),420)}};
   m.addEventListener('touchend',end);m.addEventListener('touchcancel',end);
