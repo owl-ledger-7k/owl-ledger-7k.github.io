@@ -663,7 +663,7 @@ LSwipe.remove=(box,then)=>{if(LSwipe.cur&&LSwipe.cur.box===box)LSwipe.cur=null;c
 </script>
 <script>LGBar(document.getElementById('nav'),{sel:'button',acc:'#A78BFA'})</script>
 <script>
-const VERSION='72';
+const VERSION='73';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -915,7 +915,7 @@ function homeData(){
   const rows=K.rows.map(x=>({n:x.n,now:x.now,inn:x.inn,diff:x.diff,err:x.err,my:x.my,cash:x.cash,stk:x.stk}));
   if(fr||fxIn)rows.push({n:'FX',sub:'GMOコイン',fx:1,now:fxIn+fx,inn:fxIn,diff:fx});
   const ok=rows.filter(x=>x.now!=null);
-  const show=rows.filter(x=>x.now==null||x.now>0||x.inn>0||(x.my&&x.my.length)).sort((a,b)=>(b.inn||0)-(a.inn||0)||(b.now||0)-(a.now||0));
+  const show=rows.filter(x=>x.fx||x.now==null||x.now>0||x.inn>0||(x.my&&x.my.length)).sort((a,b)=>(b.fx||0)-(a.fx||0)||(b.inn||0)-(a.inn||0)||(b.now||0)-(a.now||0));
   const zero=rows.filter(x=>!show.includes(x));
   const inn=ok.reduce((a,x)=>a+(x.inn||0),0),gain=ok.reduce((a,x)=>a+(x.diff||0),0),now=ok.reduce((a,x)=>a+(x.now||0),0);
   return{K,rows,show,zero,inn,gain,now,has:K.has||fr};
