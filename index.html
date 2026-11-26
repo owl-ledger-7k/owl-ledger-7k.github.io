@@ -347,6 +347,13 @@ body{transition:none}
 .bc.now,.tag.n{background:color-mix(in srgb,var(--gold) 18%,transparent);color:var(--gold)}
 .sp.now i{background:var(--gold)!important;color:#0b0d0c!important}.sp.now span{color:var(--gold)!important}
 .todo .w .tt{color:var(--warn)}
+/* 2026/11/26 ホームは1画面に収める（スクロールなし） */
+body[data-tab=todo] main{overflow:hidden!important;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 70px)!important}
+#p-todo.c1 .hhero{padding:12px 18px 11px}#p-todo.c1 .hbig{font-size:30px}#p-todo.c1 .hcap{margin:12px 22px 4px}
+#p-todo.c1 .hrw{padding:6px 16px}#p-todo.c1 .hd{padding-bottom:2px}
+#p-todo.c2 .hrw .hn small{display:none}#p-todo.c2 .hrw{padding:7px 16px}#p-todo.c2 .hrw .hv2 small{display:inline;margin:0 0 0 6px}
+#p-todo.c3 .hhero{padding:9px 16px 8px}#p-todo.c3 .hbig{font-size:26px}#p-todo.c3 .hcap{margin:8px 22px 3px}#p-todo.c3 .hrw{padding:4px 14px}#p-todo.c3 .hrw .hn,#p-todo.c3 .hrw .hv2{font-size:13.5px}
+#p-todo .hupd{margin-top:6px}
 /* ホーム：右上の通知ベル（今やることの件数を赤い数字で） */
 .hrow{display:flex;justify-content:space-between;align-items:flex-end}
 .hbell{position:relative;width:42px;height:42px;border-radius:50%;border:1px solid var(--edge);background:var(--glass);display:grid;place-items:center;margin-bottom:4px}
@@ -663,7 +670,7 @@ LSwipe.remove=(box,then)=>{if(LSwipe.cur&&LSwipe.cur.box===box)LSwipe.cur=null;c
 </script>
 <script>LGBar(document.getElementById('nav'),{sel:'button',acc:'#A78BFA'})</script>
 <script>
-const VERSION='73';
+const VERSION='74';
 const CLIENT_ID='187861904258-0eilchk073j1hbginl1hncskf7jpp4ja.apps.googleusercontent.com';  // GoogleログインのクライアントID（公開してよい値）
 const VAPID='BFPiiQbgaxGzyfVZaA--hO4tmo7iamPgNVKypX8MHbwrcy3IF3d3544WBQX1cVLJmfDnfnRuZaPrTR9KNwHJlyc';
 const API='https://script.google.com/macros/s/AKfycbwTnqvwT5kAsd0AKqWztPr5yxcw4FKEM4ISuuMwrtFsUGmYTjdeAzXfhypG1TIj_B7d/exec';
@@ -915,10 +922,11 @@ function homeData(){
   const rows=K.rows.map(x=>({n:x.n,now:x.now,inn:x.inn,diff:x.diff,err:x.err,my:x.my,cash:x.cash,stk:x.stk}));
   if(fr||fxIn)rows.push({n:'FX',sub:'GMOコイン',fx:1,now:fxIn+fx,inn:fxIn,diff:fx});
   const ok=rows.filter(x=>x.now!=null);
-  const show=rows.filter(x=>x.fx||x.now==null||x.now>0||x.inn>0||(x.my&&x.my.length)).sort((a,b)=>(b.fx||0)-(a.fx||0)||(b.inn||0)-(a.inn||0)||(b.now||0)-(a.now||0));
+  const show=rows.filter(x=>!x.fx&&(x.now==null||x.now>0||x.inn>0||(x.my&&x.my.length))).sort((a,b)=>(b.inn||0)-(a.inn||0)||(b.now||0)-(a.now||0));
+  const fxRow=rows.find(x=>x.fx)||null;
   const zero=rows.filter(x=>!show.includes(x));
   const inn=ok.reduce((a,x)=>a+(x.inn||0),0),gain=ok.reduce((a,x)=>a+(x.diff||0),0),now=ok.reduce((a,x)=>a+(x.now||0),0);
-  return{K,rows,show,zero,inn,gain,now,has:K.has||fr};
+  return{K,rows,show,zero,fxRow,inn,gain,now,has:K.has||fr};
 }
 const pctS=(g,i)=>{if(!i)return'';const v=Math.abs(g/i*100);return (g>0?'+':g<0?'−':'±')+(v>0&&v<1?v.toFixed(2):v.toFixed(1))+'%'};
 const clS=v=>v>0?'up':v<0?'dn':'';
@@ -932,16 +940,24 @@ function renderTodo(){
   h+=`<div class="glass hhero"><div class="cap">フクリで増やせた額</div>
      <div class="hbig ${clS(H.gain)}">${pmY2(H.gain)}<span class="hpc">${pctS(H.gain,H.inn)}</span></div>
      <div class="hsub">入金 ${Y(H.inn)}<span class="ar">→</span>今 ${Y(H.now)}</div>${H.K.last?`<div class="hsub" style="font-size:11px;color:var(--mute);margin-top:4px">${kzAt(H.K.last)} 時点・毎日12時と21時に確認</div>`:''}</div>
-   <div class="cap hcap">口座ごと</div><div class="glass hlist">`;
+   ${H.fxRow?`<div class="cap hcap">FX</div><div class="glass hlist"><button class="hrw" onclick="go('fx')"><span class="hn">FX<em>${esc(H.fxRow.sub||'')}</em>
+      <small>入金 ${Y(H.fxRow.inn)} → ${Y(H.fxRow.now)}</small></span>
+      <span class="hv2 ${clS(H.fxRow.diff)}">${pmY2(H.fxRow.diff)}<small>${H.fxRow.inn?pctS(H.fxRow.diff,H.fxRow.inn):''}</small></span><span class="go">›</span></button></div>`:''}
+   <div class="cap hcap">証券口座</div><div class="glass hlist">`;
   H.show.forEach((x,i)=>{
-    const tap=x.fx?`go('fx')`:`homeAcct(${H.rows.indexOf(x)})`;
+    const tap=`homeAcct(${H.rows.indexOf(x)})`;
     h+=`<button class="hrw" onclick="${tap}"><span class="hn">${esc(x.n)}${x.sub?`<em>${esc(x.sub)}</em>`:''}
       <small>${x.now==null?esc(x.err||'まだ読めていません'):`入金 ${Y(x.inn)} → ${Y(x.now)}`}</small></span>
       ${x.now==null?'<span class="hv2 mu">—</span>':`<span class="hv2 ${clS(x.diff)}">${pmY2(x.diff)}<small>${x.inn?pctS(x.diff,x.inn):''}</small></span>`}<span class="go">›</span></button>`});
   h+=`</div>`;
   if(H.zero.length)h+=`<div class="hupd" style="margin-top:8px">0円の口座：${esc(H.zero.map(x=>x.n).join('・'))}</div>`;
-  if(h===HOMEH)return;HOMEH=h;el.innerHTML=h;
+  if(h===HOMEH){fitHome();return}HOMEH=h;el.innerHTML=h;fitHome();
 }
+// ホームを1画面に収める：はみ出す時は段階的に詰める（c1=余白を詰める／c2=口座の行を1行に／c3=さらに小さく）
+function fitHome(){const el=$('#p-todo'),m=$('#main');if(!el||!m||TAB!=='todo')return;requestAnimationFrame(()=>{
+  el.classList.remove('c1','c2','c3');
+  for(const c of ['c1','c2','c3']){if(m.scrollHeight<=m.clientHeight+1)break;el.classList.add(c)}})}
+window.addEventListener('resize',fitHome);
 // 口座の行を押すと、その口座の中身（お金・特定口座の株）
 function homeAcct(i){const x=homeData().rows[i];if(!x)return;const Y=v=>'¥'+Math.round(v).toLocaleString('ja-JP');
   const my=(x.my||[]);
@@ -1321,6 +1337,7 @@ function go(p){if((p==='pl'||p==='fx')&&CV[p]){const S=CV[p],n=new Date(),cur=ne
   const bs=[...document.querySelectorAll('nav button')];const np=(p==='ipo'||p==='fx')?'todo':p;bs.forEach(b=>b.classList.toggle('on',b.dataset.p===np));
   const i=bs.findIndex(b=>b.dataset.p===np);$('#blob').style.transform=`translateX(${i*68}px)`;$('#main').scrollTop=0;
   if(p==='fx')requestAnimationFrame(fxScroll);
+  if(p==='todo')setTimeout(fitHome,60);
   if(p==='pl')requestAnimationFrame(plScroll);
   if(false)drawChart(trades().filter(x=>x.d>=new Date(Date.now()-({'7':7,'30':30,'all':99999}[FXR])*864e5).toISOString().slice(0,10)))}
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>go(b.dataset.p));
